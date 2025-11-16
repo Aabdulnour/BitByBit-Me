@@ -1,0 +1,345 @@
+BIG SPRINT 8 PROMPT FOR CODEX / COPILOT
+(Focus on teacher view MVP, class analytics, and view mode wiring)
+
+I am on macOS. Repo is at:
+
+~/Desktop/project-setup-bitbybit
+
+I want you to do an eighth focused sprint to:
+	•	Build a first teacher view MVP using the existing data
+	•	Add backend endpoints for class level analytics that can later power real ITS
+	•	Wire the existing Settings view mode toggle into the layout so it actually switches between student and teacher views in the UI
+	•	Keep the student flow exactly as it is today
+
+Please read this entire prompt before editing any files.
+
+Use the current UI and previous Figma inspired look as a guide for tone.
+
+⸻
+
+CURRENT SETUP (do not break)
+
+Backend
+	•	Flask backend under src/backend
+	•	Entry: src/backend/main.py with create_app()
+	•	API base: http://127.0.0.1:5000/api
+	•	Data files under src/backend/data:
+	•	students.json
+	•	attempts.json
+	•	units.json
+	•	quizzes.json
+
+Current student endpoints that must keep working:
+	•	GET /api/student/student-1/state
+	•	POST /api/student/student-1/state
+	•	GET /api/attempts/student-1
+	•	GET /api/units
+	•	GET /api/student/student-1/next-activity
+
+Frontend
+	•	React app under src/frontend
+	•	Key student pages:
+	•	Home dashboard: features/home/pages/HomeDashboard.tsx
+	•	Units flow: features/units/pages/Units.tsx, UnitDetail.tsx, Diagnostic.tsx, MiniQuiz.tsx, UnitTest.tsx, Practice.tsx
+	•	History: features/history/pages/History.tsx
+	•	Profile: features/profile/pages/Profile.tsx
+	•	Settings (student vs teacher toggle stub): features/settings/pages/Settings.tsx
+	•	Layout and sidebar: src/frontend/src/layout/AppShell.tsx
+	•	Routes: src/frontend/src/App.jsx
+	•	Shared helpers:
+	•	src/frontend/src/lib/studentClient.js
+	•	src/frontend/src/lib/attempts.ts
+	•	src/frontend/src/lib/historyClient.js (if present)
+
+Constraints
+	•	Do not change package.json and do not add dependencies
+	•	Do not remove or rename existing API routes
+	•	Any new backend fields must be optional and backward compatible
+	•	Use React function components and hooks only
+	•	Keep the existing student experience working exactly as now
+
+⸻
+
+SECTION A – Backend teacher analytics endpoints
+
+Goal: Give the teacher view aggregated information about multiple students, using the existing attempts and units data.
+
+Files:
+	•	src/backend/models.py
+	•	src/backend/repository.py
+	•	src/backend/main.py
+	•	src/backend/data/students.json (read only)
+
+Assume students.json can contain multiple student entries like student-1, student-2, etc, even if the data is small for now.
+	1.	Define simple teacher facing models
+
+In models.py, add typed dicts or small models for:
+	•	TeacherStudentSummary with:
+	•	student_id: str
+	•	name: str
+	•	overall_mastery: float (0 to 100, same rule as student mastery)
+	•	questions_answered: int
+	•	attempt_count: int
+	•	last_activity_at: Optional[str] ISO timestamp or null
+	•	TeacherUnitSummary with:
+	•	unit_id: str
+	•	unit_name: str
+	•	average_mastery: float
+	•	attempt_count: int
+	•	student_count: int (number of students with at least one attempt in that unit)
+
+	2.	Repository helpers for teacher data
+
+In repository.py, add helpers like:
+	•	get_all_students()
+	•	Return a list of student records from students.json.
+	•	get_attempts_for_all_students()
+	•	Return all attempts (not just one student).
+	•	compute_student_mastery(student_id: str) -> float
+	•	Reuse the same mastery rules as the student view: only mini quizzes and unit tests affect mastery.
+	•	Use existing attempt logic wherever possible.
+	•	compute_teacher_student_summaries() -> list[TeacherStudentSummary]
+	•	For each student in students.json, compute:
+	•	Overall mastery
+	•	Total questions answered (sum of len(results) for all attempts for that student)
+	•	Attempt count
+	•	Last activity timestamp from the latest attempt
+	•	compute_teacher_unit_summaries() -> list[TeacherUnitSummary]
+	•	For each unit:
+	•	Compute average mastery across all students who have mastery data for that unit
+	•	Count attempts in that unit
+	•	Count students who have any attempt in that unit
+
+Keep the logic simple and deterministic. It is fine if in the current dataset it mostly reflects student-1.
+	3.	New teacher endpoints
+
+In main.py, add these routes:
+	•	GET /api/teacher/overview
+	•	Returns:
+	•	students: TeacherStudentSummary[]
+	•	units: TeacherUnitSummary[]
+	•	GET /api/teacher/students/<student_id>
+	•	Returns a detailed snapshot that the teacher view can use, for example:
+	•	student basic info from students.json
+	•	attempts for that student (reuse structure from existing endpoints)
+	•	unit_mastery per unit if easy to include
+
+Document everything in simple docstrings. Do not change existing student endpoints.
+
+⸻
+
+SECTION B – Wire Settings view mode into layout
+
+Goal: The Settings toggle for Student vs Teacher view should actually influence the layout and nav.
+
+Files:
+	•	src/frontend/src/features/settings/pages/Settings.tsx
+	•	src/frontend/src/layout/AppShell.tsx
+	•	src/frontend/src/App.jsx
+	•	Optionally a small helper in src/frontend/src/lib/studentClient.js or a new viewModeClient.js
+
+	1.	Persist view mode in localStorage
+
+In Settings.tsx:
+	•	Add a small hook that:
+	•	Reads initial view mode from localStorage.getItem("bitbybit_view_mode"), defaulting to "student".
+	•	When the user toggles between Student view and Teacher view, update both React state and localStorage.
+	•	Keep the UI simple:
+	•	Radio buttons or a segmented control for:
+	•	Student view
+	•	Teacher view (coming soon)
+	•	A short description under Teacher view like:
+	•	“Teacher view shows class level progress and focus areas.”
+
+	2.	Read view mode in AppShell
+
+In AppShell.tsx:
+	•	Inside the layout component, read the same value from localStorage:
+const [viewMode, setViewMode] = useState<"student" | "teacher">("student");
+
+useEffect(() => {
+  const stored = window.localStorage.getItem("bitbybit_view_mode");
+  if (stored === "teacher" || stored === "student") {
+    setViewMode(stored);
+  }
+}, []);
+	•	Use viewMode to control which nav items appear.
+
+	3.	Nav behavior based on view mode
+
+	•	In Student view:
+	•	Show the current nav items:
+	•	Home
+	•	Units
+	•	History
+	•	Profile
+	•	Settings at the bottom
+	•	In Teacher view:
+	•	Still show Settings at the bottom.
+	•	Replace or supplement the main nav with:
+	•	Home (can show student style for now, or a simplified teacher dashboard)
+	•	Teacher dashboard (new page, see Section C)
+	•	A link back to student Home if you prefer, but keep labels clear.
+
+Try to keep code paths simple: you can always show Home and Settings, and conditionally show either Student nav group or Teacher nav group.
+
+⸻
+
+SECTION C – Teacher dashboard page
+
+Goal: A single teacher dashboard page that summarises class performance using the new backend endpoints.
+
+Files:
+	•	New page: src/frontend/src/features/teacher/pages/TeacherDashboard.tsx
+	•	Routing: src/frontend/src/App.jsx
+	•	Nav: src/frontend/src/layout/AppShell.tsx
+	•	Styles: src/frontend/src/App.css
+
+	1.	Teacher client helper
+
+In src/frontend/src/lib/studentClient.js or a new helper file like teacherClient.js:
+	•	Add a function:
+export async function fetchTeacherOverview() {
+  const res = await apiClient.get("/teacher/overview");
+  return res.data;
+}
+	•	Optionally add:
+export async function fetchTeacherStudentDetail(studentId) {
+  const res = await apiClient.get(`/teacher/students/${studentId}`);
+  return res.data;
+}
+Use the existing apiClient and base URL.
+	2.	TeacherDashboard layout
+
+Create TeacherDashboard.tsx with something like:
+	•	A top header:
+	•	Title: “Class overview”
+	•	Subtitle: “See how your students are progressing.”
+	•	On mount:
+	•	Call fetchTeacherOverview().
+	•	Show loading and error states similar to other pages.
+	•	Two main cards:
+	1.	“Students” card (table or grid):
+	•	Columns:
+	•	Name
+	•	Overall mastery percent
+	•	Questions answered
+	•	Attempts
+	•	Last activity date
+	•	Optionally clicking a row can open a simple drawer or inline detail that calls fetchTeacherStudentDetail(studentId) and shows that student’s history and unit mastery summary.
+	2.	“Units” card:
+	•	List all units with:
+	•	Unit name
+	•	Average mastery
+	•	Attempt count
+	•	Number of students with activity in that unit
+
+	3.	Styling
+
+	•	In App.css, add teacher dashboard specific classes that reuse the same card styles as Home and Profile.
+	•	Keep the teacher cards slightly more compact and table like, but still consistent with the product style.
+	•	It should look ready to show in a class or demo.
+
+	4.	Routes and nav wiring
+
+	•	In App.jsx, add a route:
+<Route path="/teacher" element={<TeacherDashboard />} />
+	•	In AppShell.tsx, when viewMode === "teacher", show a “Teacher dashboard” nav item that links to /teacher.
+
+⸻
+
+SECTION D – Teacher student detail pane (lightweight)
+
+Goal: When the teacher clicks a student in the class list, let them see that student’s focus areas and last few attempts, without building a whole new app.
+
+Files:
+	•	TeacherDashboard.tsx
+	•	Optionally new component: src/frontend/src/features/teacher/components/StudentDetailDrawer.tsx
+	•	src/frontend/src/App.css
+
+	1.	Detail panel behavior
+
+	•	When a row in the Students table is clicked:
+	•	Set selectedStudentId in state.
+	•	Call fetchTeacherStudentDetail(selectedStudentId) if not already loaded.
+	•	Show a side panel or modal anchored to the dashboard card with:
+	•	Student name
+	•	Overall mastery
+	•	A short list of units with mastery bars for that student
+	•	A list of their last 3 attempts:
+	•	Date
+	•	Unit or section
+	•	Quiz type
+	•	Score
+	•	Add a close button on the panel.
+
+	2.	Safety and UX
+
+	•	Handle loading and error states in the detail panel.
+	•	If the backend has only one student, the UI should still behave correctly.
+
+⸻
+
+SECTION E – Visual polish and consistency
+
+Goal: Keep the new teacher view in harmony with the student UI.
+
+Files:
+	•	src/frontend/src/App.css
+	•	TeacherDashboard.tsx
+	•	Settings.tsx
+
+Changes:
+	1.	Reuse card styles
+
+	•	Use the same card classes as Home and Profile for the teacher cards.
+	•	Ensure consistent padding, border radius, shadows.
+
+	2.	Labels and hints
+
+	•	In Settings, under Teacher view, include a muted line like:
+	•	“Use this mode to preview what a teacher dashboard could look like.”
+	•	In the Teacher dashboard, use small, clear labels for columns and avoid clutter.
+
+	3.	Keep it school friendly
+
+	•	No wild colors or memes.
+	•	Emojis are allowed in a subtle way only, for example a small 🎓 in a “Class overview” title if it fits the style.
+
+⸻
+
+SECTION F – Sanity checks
+
+After your changes, verify:
+	1.	Student view still works:
+
+	•	Home, Units, History, Profile, and Settings all behave as before when view mode is Student.
+	•	History still renders correctly with the defensive chart.
+
+	2.	View mode toggle:
+
+	•	Switching to Teacher view in Settings updates localStorage and persists on reload.
+	•	AppShell reads the mode and shows appropriate nav items.
+
+	3.	Teacher view:
+
+	•	/teacher loads without console errors.
+	•	GET /api/teacher/overview and GET /api/teacher/students/student-1 are called and return valid data.
+	•	Students card and units card render coherent numbers.
+
+	4.	Mixed mode:
+
+	•	Toggling from Teacher view back to Student view returns you to the student nav without refresh.
+	•	Settings remains accessible from both modes.
+
+	5.	Build and backend:
+
+From src/frontend:
+	•	npm run build works with no errors.
+
+From src:
+	•	python -m backend.main still starts normally, and existing student routes respond as before.
+
+If anything would break these, adjust the implementation while keeping the new teacher view features intact.
+
+⸻

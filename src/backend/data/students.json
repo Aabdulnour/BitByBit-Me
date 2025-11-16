@@ -1,0 +1,12 @@
+{
+  "student-1": {
+    "student_id": "student-1",
+    "name": "Student student-1",
+    "grade_level": "9",
+    "preferred_difficulty": "medium",
+    "mastery_by_skill": {},
+    "last_unit_id": "algebra-1",
+    "last_section_id": null,
+    "last_activity": "diagnostic"
+  }
+}

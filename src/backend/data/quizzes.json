@@ -1,0 +1,146 @@
+[
+  {
+    "id": "diag-alg-1",
+    "title": "Algebra Basics Diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "type": "diagnostic",
+    "question_ids": ["q1", "q5", "q9", "q13"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "unit-alg-1",
+    "title": "Unit 1 Comprehensive Test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "type": "unit_test",
+    "question_ids": ["q13", "q14", "q15", "q16"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-alg-1-1",
+    "title": "Practice: Linear Equations",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "type": "practice",
+    "question_ids": ["q1", "q2"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-alg-1-1",
+    "title": "Mini quiz: Linear Equations",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "type": "mini_quiz",
+    "question_ids": ["q3", "q4"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-alg-1-2",
+    "title": "Practice: Substitution Method",
+    "unit_id": "algebra-1",
+    "section_id": "1.2",
+    "type": "practice",
+    "question_ids": ["q5", "q6"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-alg-1-2",
+    "title": "Mini quiz: Substitution Method",
+    "unit_id": "algebra-1",
+    "section_id": "1.2",
+    "type": "mini_quiz",
+    "question_ids": ["q7", "q8"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-alg-1-3",
+    "title": "Practice: Word Problems",
+    "unit_id": "algebra-1",
+    "section_id": "1.3",
+    "type": "practice",
+    "question_ids": ["q9", "q10"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-alg-1-3",
+    "title": "Mini quiz: Word Problems",
+    "unit_id": "algebra-1",
+    "section_id": "1.3",
+    "type": "mini_quiz",
+    "question_ids": ["q11", "q12"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "diag-quad-2",
+    "title": "Quadratic Equations Diagnostic",
+    "unit_id": "quadratic-2",
+    "section_id": null,
+    "type": "diagnostic",
+    "question_ids": ["q21", "q25", "q29", "q33"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "unit-quad-2",
+    "title": "Unit 2 Comprehensive Test",
+    "unit_id": "quadratic-2",
+    "section_id": null,
+    "type": "unit_test",
+    "question_ids": ["q33", "q34", "q35", "q36", "q37", "q38", "q39"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-quad-2-1",
+    "title": "Practice: Factoring",
+    "unit_id": "quadratic-2",
+    "section_id": "2.1",
+    "type": "practice",
+    "question_ids": ["q21", "q22"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-quad-2-1",
+    "title": "Mini quiz: Factoring",
+    "unit_id": "quadratic-2",
+    "section_id": "2.1",
+    "type": "mini_quiz",
+    "question_ids": ["q23", "q24"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-quad-2-2",
+    "title": "Practice: Graphing Quadratics",
+    "unit_id": "quadratic-2",
+    "section_id": "2.2",
+    "type": "practice",
+    "question_ids": ["q25", "q26"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-quad-2-2",
+    "title": "Mini quiz: Graphing Quadratics",
+    "unit_id": "quadratic-2",
+    "section_id": "2.2",
+    "type": "mini_quiz",
+    "question_ids": ["q27", "q28"],
+    "passing_score_pct": 70
+  },
+  {
+    "id": "practice-quad-2-3",
+    "title": "Practice: Applications",
+    "unit_id": "quadratic-2",
+    "section_id": "2.3",
+    "type": "practice",
+    "question_ids": ["q29", "q30"],
+    "passing_score_pct": 60
+  },
+  {
+    "id": "mini-quad-2-3",
+    "title": "Mini quiz: Applications",
+    "unit_id": "quadratic-2",
+    "section_id": "2.3",
+    "type": "mini_quiz",
+    "question_ids": ["q31", "q32"],
+    "passing_score_pct": 70
+  }
+]

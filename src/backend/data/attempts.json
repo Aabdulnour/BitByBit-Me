@@ -1,0 +1,910 @@
+[
+  {
+    "id": "b0164a27-1951-4583-baa2-14c491460d7f",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763226740.323884,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "f3210d9b-21ae-4101-9def-4acc0a072b86",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763227382.508415,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "1be08fa3-e61e-4d61-b632-1d92de7d88f7",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763227949.4611661,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "1548fb10-806b-4065-82e6-14f1d738ca72",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763227953.634811,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "22071f80-d72c-4935-bc24-b5c5e0031b7a",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763227957.6737049,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "c7e68054-9e4a-4393-91f9-e84ba33c1e7f",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763229219.723853,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "3147a92c-be62-42b4-8138-9575425bf5f2",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763232104.434298,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "7c0e0c46-6c7d-4792-8655-4618c837d036",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763232109.141835,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "e1927514-7c13-4e8b-a2be-1c356dd62f43",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763232123.389628,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "4339a397-2d2a-4e5b-8687-b022813199f3",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763232128.0680802,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "f32a1d99-430b-4686-8ef6-2aee79c4790a",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763233401.039,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "ecbdf733-747b-474b-864a-aee6f048c3c6",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763233425.778253,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "665ef303-7e44-4866-b503-d24c38c9ef2a",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 100.0,
+    "created_at": 1763233431.359638,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "f6552c3c-8d2f-4097-90ff-8d2c4922aa49",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763233834.300342,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "28eb9102-2ecb-49c2-b6b9-2e62df1eb85c",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763238462.431564,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q5",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": true,
+        "chosen_answer": "$2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": true,
+        "chosen_answer": "$2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "1449b3e8-fbfd-4f48-a464-c82c468643a8",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763238462.634659,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q5",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": true,
+        "chosen_answer": "$2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": true,
+        "chosen_answer": "$2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "c6352ecb-7b98-4b4e-94f7-0525cb3fe3db",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 25.0,
+    "created_at": 1763239571.383043,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q5",
+        "correct": false,
+        "chosen_answer": "3",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": false,
+        "chosen_answer": "$1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q13",
+        "correct": true,
+        "chosen_answer": "2x + 6",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "73dfad28-58cc-46cf-af75-988de4506196",
+    "student_id": "student-1",
+    "quiz_id": "practice-alg-1-1",
+    "quiz_type": "practice",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 100.0,
+    "created_at": 1763239705.18184,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q2",
+        "correct": true,
+        "chosen_answer": "5",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "6bb6d9e6-512b-45b0-a222-b72bd890401d",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-1",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 50.0,
+    "created_at": 1763239853.9280949,
+    "results": [
+      {
+        "question_id": "q3",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q4",
+        "correct": false,
+        "chosen_answer": "-6",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "5db56479-4170-4b3b-9154-9e615bf9ad56",
+    "student_id": "student-1",
+    "quiz_id": "unit-alg-1",
+    "quiz_type": "unit_test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 25.0,
+    "created_at": 1763239954.520743,
+    "results": [
+      {
+        "question_id": "q13",
+        "correct": true,
+        "chosen_answer": "2x + 6",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q14",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q15",
+        "correct": false,
+        "chosen_answer": "2",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q16",
+        "correct": false,
+        "chosen_answer": "$12 gym fee plus $5 monthly",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "7277ba69-0100-4cca-9f73-bfe0d5c133f2",
+    "student_id": "student-1",
+    "quiz_id": "diag-quad-2",
+    "quiz_type": "diagnostic",
+    "unit_id": "quadratic-2",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763240144.7533922,
+    "results": [
+      {
+        "question_id": "q21",
+        "correct": true,
+        "chosen_answer": "(x + 2)(x + 3)",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q25",
+        "correct": false,
+        "chosen_answer": "(1, 2)",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q29",
+        "correct": false,
+        "chosen_answer": "16 ft",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q33",
+        "correct": true,
+        "chosen_answer": "x = 6 or -2",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "885a9524-4c79-440c-8866-e564621d3935",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763257410.211881,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "3",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q5",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q9",
+        "correct": false,
+        "chosen_answer": "$1",
+        "time_sec": 0.0
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "2x + 2",
+        "time_sec": 0.0
+      }
+    ]
+  },
+  {
+    "id": "97e90e38-70e5-4c5d-8cb0-718ac462902b",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 0.0,
+    "created_at": 1763266144.929745,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0,
+        "used_hint": true
+      },
+      {
+        "question_id": "q5",
+        "correct": false,
+        "chosen_answer": "4",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q9",
+        "correct": false,
+        "chosen_answer": "$1",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "393c1085-48ba-402d-ab30-d299ab619116",
+    "student_id": "student-1",
+    "quiz_id": "unit-alg-1",
+    "quiz_type": "unit_test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763266184.200896,
+    "results": [
+      {
+        "question_id": "q13",
+        "correct": true,
+        "chosen_answer": "2x + 6",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q14",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q15",
+        "correct": false,
+        "chosen_answer": "2",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q16",
+        "correct": false,
+        "chosen_answer": "$5 gym fee plus $12 monthly",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "0a340a03-7321-454a-9a85-7aa0c2f347e3",
+    "student_id": "student-1",
+    "quiz_id": "mini-quad-2-3",
+    "quiz_type": "mini_quiz",
+    "unit_id": "quadratic-2",
+    "section_id": "2.3",
+    "score_pct": 50.0,
+    "created_at": 1763267131.360798,
+    "results": [
+      {
+        "question_id": "q31",
+        "correct": false,
+        "chosen_answer": "t = 0 or t = 5",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q32",
+        "correct": true,
+        "chosen_answer": "$28",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "0d9c3c80-3402-4e09-98d7-de74bde038d5",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-3",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.3",
+    "score_pct": 100.0,
+    "created_at": 1763267157.103054,
+    "results": [
+      {
+        "question_id": "q11",
+        "correct": true,
+        "chosen_answer": "False",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q12",
+        "correct": true,
+        "chosen_answer": "C = 0.10m + 20",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "21c38647-0a90-42e8-89d4-cebcc7aa04cb",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-3",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.3",
+    "score_pct": 0.0,
+    "created_at": 1763267162.9613922,
+    "results": [
+      {
+        "question_id": "q11",
+        "correct": false,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q12",
+        "correct": false,
+        "chosen_answer": "C = 20m - 0.10",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "0d73620d-7f3c-4ca3-848e-25ab59c73e8b",
+    "student_id": "student-1",
+    "quiz_id": "diag-alg-1",
+    "quiz_type": "diagnostic",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 50.0,
+    "created_at": 1763267693.347439,
+    "results": [
+      {
+        "question_id": "q1",
+        "correct": true,
+        "chosen_answer": "2",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q5",
+        "correct": true,
+        "chosen_answer": "6",
+        "time_sec": 0.0,
+        "used_hint": true
+      },
+      {
+        "question_id": "q9",
+        "correct": false,
+        "chosen_answer": "$1",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "ab3abb3d-a1ba-4a99-9a6a-2efc1413a422",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-1",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 0.0,
+    "created_at": 1763267735.9700658,
+    "results": [
+      {
+        "question_id": "q3",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q4",
+        "correct": false,
+        "chosen_answer": "-16",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "df1d4e3e-e919-4fea-84d0-d340ee73eb2d",
+    "student_id": "student-1",
+    "quiz_id": "unit-alg-1",
+    "quiz_type": "unit_test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 25.0,
+    "created_at": 1763267752.851767,
+    "results": [
+      {
+        "question_id": "q13",
+        "correct": true,
+        "chosen_answer": "2x + 6",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q14",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q15",
+        "correct": false,
+        "chosen_answer": "2",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q16",
+        "correct": false,
+        "chosen_answer": "$12 gym fee plus $5 monthly",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "37a8499a-653a-462f-8606-838d1677dbe6",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-3",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.3",
+    "score_pct": 50.0,
+    "created_at": 1763273408.044734,
+    "results": [
+      {
+        "question_id": "q11",
+        "correct": true,
+        "chosen_answer": "False",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q12",
+        "correct": false,
+        "chosen_answer": "C = 20m + 0.10",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  }
+]

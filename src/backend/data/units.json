@@ -1,0 +1,62 @@
+[
+  {
+    "id": "algebra-1",
+    "title": "Unit 1: Algebra Basics",
+    "description": "Master the fundamentals of algebraic expressions and equations.",
+    "diagnostic_quiz_id": "diag-alg-1",
+    "comprehensive_quiz_id": "unit-alg-1",
+    "sections": [
+      {
+        "id": "1.1",
+        "title": "Section 1.1: Linear Equations",
+        "summary": "Solve one-step and two-step equations with confidence.",
+        "practiceQuizId": "practice-alg-1-1",
+        "miniQuizId": "mini-alg-1-1"
+      },
+      {
+        "id": "1.2",
+        "title": "Section 1.2: Substitution Method",
+        "summary": "Use substitution to work through systems of equations.",
+        "practiceQuizId": "practice-alg-1-2",
+        "miniQuizId": "mini-alg-1-2"
+      },
+      {
+        "id": "1.3",
+        "title": "Section 1.3: Word Problems",
+        "summary": "Translate real stories into algebraic expressions.",
+        "practiceQuizId": "practice-alg-1-3",
+        "miniQuizId": "mini-alg-1-3"
+      }
+    ]
+  },
+  {
+    "id": "quadratic-2",
+    "title": "Unit 2: Quadratic Equations",
+    "description": "Learn to solve, factor, and graph quadratic relationships.",
+    "diagnostic_quiz_id": "diag-quad-2",
+    "comprehensive_quiz_id": "unit-quad-2",
+    "sections": [
+      {
+        "id": "2.1",
+        "title": "Section 2.1: Factoring",
+        "summary": "Factor quadratics using common patterns.",
+        "practiceQuizId": "practice-quad-2-1",
+        "miniQuizId": "mini-quad-2-1"
+      },
+      {
+        "id": "2.2",
+        "title": "Section 2.2: Graphing",
+        "summary": "Sketch parabolas in vertex and factored form.",
+        "practiceQuizId": "practice-quad-2-2",
+        "miniQuizId": "mini-quad-2-2"
+      },
+      {
+        "id": "2.3",
+        "title": "Section 2.3: Applications",
+        "summary": "Apply quadratics to real-world situations.",
+        "practiceQuizId": "practice-quad-2-3",
+        "miniQuizId": "mini-quad-2-3"
+      }
+    ]
+  }
+]
