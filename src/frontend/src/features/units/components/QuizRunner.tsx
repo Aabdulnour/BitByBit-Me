@@ -18,6 +18,7 @@ export default function QuizRunner({
   onFinished,
   summaryPrimaryLabel,
   summarySecondaryLabel,
+  renderSummaryDetail,
 }: {
   title: string;
   questions: Question[];
@@ -31,6 +32,7 @@ export default function QuizRunner({
   }) => void;
   summaryPrimaryLabel?: string;
   summarySecondaryLabel?: string;
+  renderSummaryDetail?: (scorePct: number) => React.ReactNode;
 }) {
   const [i, setI] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -89,6 +91,9 @@ export default function QuizRunner({
     const scorePct =
       finalScorePct ?? (total > 0 ? Math.round((correct / total) * 100) : 0);
     const passed = scorePct >= passingScorePct;
+    const detail = renderSummaryDetail
+      ? renderSummaryDetail(scorePct)
+      : null;
 
     return (
       <SummaryCard
@@ -97,6 +102,7 @@ export default function QuizRunner({
         passed={passed}
         primaryLabel={summaryPrimaryLabel}
         secondaryLabel={summarySecondaryLabel}
+        detail={detail}
         onSecondary={() => {
           setI(0);
           setCorrect(0);

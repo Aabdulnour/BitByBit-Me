@@ -1,19 +1,17 @@
 import { apiGet, apiPost } from "./apiClient";
+import { getCurrentStudentId as readStudentId } from "./currentStudent";
 
-// For now we hard code a single demo student id.
-const STUDENT_ID = "student-1";
-
-export function getCurrentStudentId() {
-  return STUDENT_ID;
-}
+export { getCurrentStudentId } from "./currentStudent";
 
 export async function fetchStudentState() {
-  return apiGet(`/student/${STUDENT_ID}/state`);
+  const studentId = readStudentId();
+  return apiGet(`/student/${studentId}/state`);
 }
 
 export async function updateStudentState(patch) {
   // patch can contain { name, grade_level, preferred_difficulty } etc.
-  return apiPost(`/student/${STUDENT_ID}/state`, patch);
+  const studentId = readStudentId();
+  return apiPost(`/student/${studentId}/state`, patch);
 }
 
 /**
@@ -29,8 +27,9 @@ export async function updateStudentState(patch) {
  * }
  */
 export async function createAttempt(payload) {
+  const studentId = readStudentId();
   return apiPost("/attempts", {
-    student_id: STUDENT_ID,
+    student_id: studentId,
     quiz_id: payload.quizId,
     quiz_type: payload.quizType,
     unit_id: payload.unitId,
@@ -50,15 +49,22 @@ export async function fetchNextPracticeQuestion({
   unitId,
   sectionId = null,
 }) {
+  const studentId = readStudentId();
   return apiPost("/next-question", {
-    student_id: STUDENT_ID,
+    student_id: studentId,
     unit_id: unitId,
     section_id: sectionId,
   });
 }
 
 export async function fetchNextActivity() {
-  return apiGet(`/student/${STUDENT_ID}/next-activity`);
+  const studentId = readStudentId();
+  return apiGet(`/student/${studentId}/next-activity`);
+}
+
+export async function fetchDiagnosticResults(unitId) {
+  const studentId = readStudentId();
+  return apiGet(`/student/${studentId}/diagnostic-results/${unitId}`);
 }
 
 /**

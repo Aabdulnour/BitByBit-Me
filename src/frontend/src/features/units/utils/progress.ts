@@ -91,3 +91,18 @@ export function classifyPlacement(scorePct: number | null | undefined) {
   if (scorePct < 67) return "On track";
   return "Advanced";
 }
+
+export type PlacementLabel = ReturnType<typeof classifyPlacement>;
+
+export function describePlacement(level: PlacementLabel) {
+  switch (level) {
+    case "Foundations":
+      return "We will start you at early sections and ramp up as you master the basics.";
+    case "On track":
+      return "You are on track. We will mix in both practice and mini quizzes to keep you growing.";
+    case "Advanced":
+      return "You are advanced. You will see more challenging items sooner.";
+    default:
+      return "Complete the diagnostic to see your personalized starting point.";
+  }
+}

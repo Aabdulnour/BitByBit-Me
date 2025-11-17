@@ -8,6 +8,7 @@ export default function SummaryCard({
   onSecondary,
   primaryLabel = "Back to unit",
   secondaryLabel = "Retry quiz",
+  detail,
 }: {
   title: string;
   scorePct: number;
@@ -16,6 +17,7 @@ export default function SummaryCard({
   onSecondary?: () => void;
   primaryLabel?: string;
   secondaryLabel?: string;
+  detail?: React.ReactNode;
 }) {
   const message = passed ? "You passed! Keep up the momentum." : "Keep practicing and try again.";
 
@@ -34,6 +36,7 @@ export default function SummaryCard({
         <span>{scorePct}%</span> score
       </p>
       <p className="summary-message">{message}</p>
+      {detail && <div className="summary-detail">{detail}</div>}
       <div className="summary-actions">
         {onSecondary && (
           <button className="btn secondary" onClick={onSecondary} aria-label={secondaryLabel}>

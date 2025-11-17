@@ -18,3 +18,11 @@ export function persistViewMode(mode: ViewMode) {
   window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
   window.dispatchEvent(new Event(VIEW_MODE_EVENT));
 }
+
+export function clearStoredViewMode() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem(VIEW_MODE_STORAGE_KEY);
+  window.dispatchEvent(new Event(VIEW_MODE_EVENT));
+}

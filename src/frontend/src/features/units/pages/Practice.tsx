@@ -63,6 +63,11 @@ export default function PracticePage() {
 
   const answeredCount = sessionAnswers.length;
 
+  const confirmLeave = useCallback(() => {
+    if (sessionAnswers.length === 0) return true;
+    return window.confirm("End this practice session and save your progress?");
+  }, [sessionAnswers.length]);
+
   const loadQuestion = useCallback(async () => {
     if (!unitId) return;
     setQuestionError(null);
@@ -158,6 +163,7 @@ export default function PracticePage() {
   };
 
   const handleEndSession = async () => {
+    if (!confirmLeave()) return;
     if (!unit || !section || !sectionId) {
       nav(`/units/${unit?.id ?? ""}`);
       return;
@@ -227,7 +233,12 @@ export default function PracticePage() {
     return (
       <div className="page">
         <div className="quiz-top-bar">
-          <button className="btn" onClick={() => nav(`/units/${unit.id}`)}>
+          <button
+            className="btn"
+            onClick={() => {
+              if (confirmLeave()) nav(`/units/${unit.id}`);
+            }}
+          >
             ← Back
           </button>
           <div>
@@ -256,7 +267,12 @@ export default function PracticePage() {
     <div className="page">
       <div className="practice-top-bar">
         <div className="practice-top-info">
-          <button className="btn" onClick={() => nav(`/units/${unit.id}`)}>
+          <button
+            className="btn"
+            onClick={() => {
+              if (confirmLeave()) nav(`/units/${unit.id}`);
+            }}
+          >
             ← Back
           </button>
           <div>

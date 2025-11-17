@@ -27,9 +27,24 @@ interface Props {
   onRetry?: (studentId: string) => void;
 }
 
-function formatAttemptDate(createdAt?: number) {
+function formatAttemptDate(
+  createdAt?: number | string | null
+) {
   if (!createdAt) return "—";
-  const date = new Date(createdAt * 1000);
+  if (typeof createdAt === "string") {
+    const date = new Date(createdAt);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    }
+  }
+  const stamp =
+    typeof createdAt === "number" ? createdAt * 1000 : Date.now();
+  const date = new Date(stamp);
   return date.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
@@ -63,90 +78,174 @@ export default function StudentDetailDrawer({
 }: Props) {
   if (!studentId) return null;
   const contentState = detail || { loading: true, error: null, data: null };
-
+  const unitMastery = contentState.data?.unitMastery ?? [];
+  const attemptList = contentState.data?.attempts ?? [];
+  const stats = [
+    {
+      label: "Overall mastery",
+      value: `${summary?.overall_mastery ?? 0}%`,
+      helper:
+        "Mastery is a score from 0 to 1 (shown as a percent) estimated from recent mini quizzes and unit tests.",
+    },
+    {
+      label: "Questions answered",
+      value: `${summary?.questions_answered ?? 0}`,
+    },
+    {
+      label: "Attempts",
+      value: `${summary?.attempt_count ?? attemptList.length}`,
+    },
+    {
+      label: "Hint usage",
+      value:
+        summary?.hint_usage_rate != null
+          ? `${Math.round((summary.hint_usage_rate || 0) * 100)}%`
+          : "—",
+      helper:
+        "Hint usage is the percentage of questions where the student requested a hint.",
+    },
+  ];
   return (
-    <>
-      <div className="student-detail-overlay" onClick={onClose} />
-      <div className="student-detail-drawer">
-        <div className="drawer-header">
-          <div>
-            <p className="muted small">Student focus</p>
-            <h3>{contentState.data?.student.name || "Loading"}</h3>
-          </div>
-          <button className="btn-link" onClick={onClose} aria-label="Close detail">
-            Close
-          </button>
-        </div>
-        {contentState.loading && (
-          <div className="drawer-section">
-            <p className="muted small">Gathering latest attempts…</p>
-          </div>
-        )}
-        {contentState.error && (
-          <div className="drawer-section">
-            <p className="error-text">{contentState.error}</p>
-            {onRetry && (
-              <button className="btn" onClick={() => onRetry(studentId)}>
-                Retry
-              </button>
-            )}
-          </div>
-        )}
-        {!contentState.loading && !contentState.error && contentState.data && (
-          <>
-            <div className="drawer-section">
-              <div className="drawer-pill">
-                <span>Overall mastery</span>
-                <strong>{summary?.overall_mastery ?? 0}%</strong>
+    <div className="student-detail-layer" role="dialog" aria-modal="true">
+      <div className="student-detail-backdrop" onClick={onClose} />
+      <div className="student-detail-card">
+        <div className="teacher-detail">
+          <div className="teacher-student-detail">
+            <div className="teacher-student-detail-header">
+              <div className="student-detail-header">
+                <div>
+                  <p className="muted small">Student profile</p>
+                  <h2>{contentState.data?.student.name || "Loading…"}</h2>
+                  {summary?.last_activity_at && (
+                    <p className="muted small">
+                      Last activity: {formatAttemptDate(summary.last_activity_at)}
+                    </p>
+                  )}
+                </div>
+                <div className="student-detail-meta">
+                  <span>{contentState.data?.student.email || "No email on file"}</span>
+                </div>
               </div>
-              <p className="muted small">
-                Grade {contentState.data.student.grade_level || "—"} • Prefers {" "}
-                {contentState.data.student.preferred_difficulty || "medium"}
-              </p>
+              <button
+                className="student-detail-close"
+                type="button"
+                onClick={onClose}
+                aria-label="Close student detail"
+              >
+                Close ✕
+              </button>
             </div>
-            <div className="drawer-section">
-              <h4>Unit mastery</h4>
-              {contentState.data.unitMastery.length === 0 && (
-                <p className="muted small">No mastery data yet for this student.</p>
+
+            <div className="teacher-student-detail-body">
+              {contentState.loading && (
+                <div className="drawer-section">
+                  <p className="muted small">Gathering latest attempts…</p>
+                </div>
               )}
-              <ul className="unit-mastery-list">
-                {contentState.data.unitMastery.map((unit) => (
-                  <li key={unit.unitId}>
-                    <div>
-                      <strong>{unit.unitName}</strong>
-                      <span className="muted small">{unit.mastery}% mastery</span>
+              {contentState.error && (
+                <div className="drawer-section">
+                  <p className="error-text">{contentState.error}</p>
+                  {onRetry && (
+                    <button className="btn" onClick={() => onRetry(studentId)}>
+                      Retry
+                    </button>
+                  )}
+                </div>
+              )}
+              {!contentState.loading && !contentState.error && contentState.data && (
+                <>
+                  <div className="drawer-section">
+                    <div className="drawer-stat-grid">
+                      {stats.map((stat) => (
+                        <div key={stat.label} className="drawer-stat">
+                          <p className="muted small">
+                            {stat.label}{" "}
+                            {stat.helper && (
+                              <span
+                                className="helper-hint inline"
+                                title={stat.helper}
+                              >
+                                i
+                              </span>
+                            )}
+                          </p>
+                          <strong>{stat.value}</strong>
+                        </div>
+                      ))}
                     </div>
-                    <div className="unit-mastery-bar">
-                      <span style={{ width: `${unit.mastery}%` }} />
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                  <div className="drawer-section">
+                    <h4>
+                      Unit mastery{" "}
+                      <span
+                        className="helper-hint inline"
+                        title="Mastery is a score from 0 to 1 (shown as a percent) estimated from the student's graded attempts."
+                      >
+                        i
+                      </span>
+                    </h4>
+                    {unitMastery.length === 0 && (
+                      <p className="muted small">No mastery data yet for this student.</p>
+                    )}
+                    <ul className="unit-mastery-list">
+                      {unitMastery.map((unit) => {
+                        const struggling = unit.mastery < 50;
+                        const strong = unit.mastery >= 80;
+                        let chipLabel: string | null = null;
+                        let chipClass = "mastery-chip";
+                        if (struggling) {
+                          chipLabel = "struggling";
+                          chipClass += " weak";
+                        } else if (strong) {
+                          chipLabel = "strong";
+                          chipClass += " strong";
+                        }
+                        return (
+                          <li key={unit.unitId}>
+                            <div>
+                              <strong>{unit.unitName}</strong>
+                              <div className="unit-mastery-meta">
+                                <span className="muted small">{unit.mastery}% mastery</span>
+                                {chipLabel && (
+                                  <span className={chipClass}>{chipLabel}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="unit-mastery-bar">
+                              <span style={{ width: `${unit.mastery}%` }} />
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                  <div className="drawer-section">
+                    <h4>Recent attempts</h4>
+                    <ul className="drawer-attempts">
+                      {attemptList.slice(0, 4).map((attempt) => (
+                        <li key={attempt.id}>
+                          <div>
+                            <strong>{formatQuizLabel(attempt.quizType)}</strong>
+                            <p className="muted small">
+                              {attempt.unitId || "Unknown unit"} • {formatAttemptDate(attempt.createdAt)}
+                            </p>
+                          </div>
+                          <span className="attempt-score">{attempt.scorePct}%</span>
+                        </li>
+                      ))}
+                      {attemptList.length === 0 && (
+                        <li>
+                          <p className="muted small">No attempts found yet.</p>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
-            <div className="drawer-section">
-              <h4>Recent attempts</h4>
-              <ul className="drawer-attempts">
-                {contentState.data.attempts.slice(0, 3).map((attempt) => (
-                  <li key={attempt.id}>
-                    <div>
-                      <strong>{formatQuizLabel(attempt.quizType)}</strong>
-                      <p className="muted small">
-                        {attempt.unitId || "Unknown unit"} • {formatAttemptDate(attempt.createdAt)}
-                      </p>
-                    </div>
-                    <span className="attempt-score">{attempt.scorePct}%</span>
-                  </li>
-                ))}
-                {contentState.data.attempts.length === 0 && (
-                  <li>
-                    <p className="muted small">No attempts found yet.</p>
-                  </li>
-                )}
-              </ul>
-            </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

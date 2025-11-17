@@ -18,6 +18,9 @@ from .repository import (
     compute_teacher_student_summaries,
     compute_teacher_unit_summaries,
     compute_unit_mastery_for_student,
+    get_all_students,
+    create_student,
+    get_user_by_email,
 )
 from .recommender import pick_next_question
 
@@ -34,6 +37,27 @@ def create_app() -> Flask:
     @app.get("/api/health")
     def health():
         return jsonify({"status": "ok"})
+
+    @app.post("/api/auth/login")
+    def api_auth_login():
+        payload = request.get_json(force=True) or {}
+        email = (payload.get("email") or "").strip().lower()
+        password = (payload.get("password") or "").strip()
+        if not email or not password:
+            return jsonify({"error": "invalid_credentials"}), 401
+        user = get_user_by_email(email)
+        if not user or user.password != password:
+            return jsonify({"error": "invalid_credentials"}), 401
+        return jsonify(user.to_safe_dict())
+
+    @app.post("/api/auth/forgot-password")
+    def api_auth_forgot_password():
+        payload = request.get_json(force=True) or {}
+        email = (payload.get("email") or "").strip()
+        message = "If this email exists, we will send reset instructions."
+        if email:
+            _ = get_user_by_email(email)
+        return jsonify({"message": message})
 
     @app.get("/api/units")
     def api_units():
@@ -102,6 +126,10 @@ def create_app() -> Flask:
             student.last_section_id = payload["last_section_id"] or None
         if "last_activity" in payload:
             student.last_activity = payload["last_activity"] or None
+        if "avatar_url" in payload:
+            student.avatar_url = payload["avatar_url"] or None
+        if "avatar_name" in payload:
+            student.avatar_name = payload["avatar_name"] or None
         save_student(student)
         return jsonify(student.to_dict())
 
@@ -110,17 +138,73 @@ def create_app() -> Flask:
         attempts = [a.to_dict() for a in load_attempts(student_id)]
         return jsonify(attempts)
 
+    @app.get("/api/students")
+    def api_students():
+        """Return a lightweight list of students for selection UIs."""
+
+        students = [
+            {
+                "id": student.student_id,
+                "name": student.name,
+                "email": student.email,
+            }
+            for student in get_all_students()
+        ]
+        return jsonify({"students": students})
+
+    @app.post("/api/students")
+    def api_create_student_record():
+        """
+        Demo endpoint that appends a student to students.json so the app feels multi-tenant.
+        """
+
+        payload = request.get_json(force=True) or {}
+        name = (payload.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "name_required"}), 400
+        email = payload.get("email")
+        student = create_student(name=name, email=email)
+        return jsonify(student.to_dict()), 201
+
     @app.get("/api/teacher/overview")
     def api_teacher_overview():
         """Return aggregated stats for the teacher dashboard."""
 
-        student_summaries = [
-            summary.to_dict() for summary in compute_teacher_student_summaries()
-        ]
+        raw_student_summaries = compute_teacher_student_summaries()
+        student_summaries = [summary.to_dict() for summary in raw_student_summaries]
         unit_summaries = [
             summary.to_dict() for summary in compute_teacher_unit_summaries()
         ]
-        return jsonify({"students": student_summaries, "units": unit_summaries})
+
+        total_students = len(raw_student_summaries)
+        total_attempts = sum(summary.attempt_count for summary in raw_student_summaries)
+        average_mastery = (
+            sum(summary.overall_mastery for summary in raw_student_summaries) / total_students
+            if total_students
+            else 0.0
+        )
+        hint_weighted_total = sum(
+            (summary.hint_usage_rate or 0) * summary.attempt_count
+            for summary in raw_student_summaries
+        )
+        average_hint_usage = (
+            (hint_weighted_total / total_attempts) if total_attempts else None
+        )
+
+        summary_payload = {
+            "total_students": total_students,
+            "average_mastery": round(average_mastery, 1) if total_students else 0.0,
+            "total_attempts": total_attempts,
+            "average_hint_usage": average_hint_usage,
+        }
+
+        return jsonify(
+            {
+                "summary": summary_payload,
+                "students": student_summaries,
+                "units": unit_summaries,
+            }
+        )
 
     @app.get("/api/teacher/students/<student_id>")
     def api_teacher_student_detail(student_id: str):
@@ -146,6 +230,79 @@ def create_app() -> Flask:
                 "student": student.to_dict(),
                 "attempts": attempts,
                 "unit_mastery": unit_mastery,
+            }
+        )
+
+    @app.get("/api/student/<student_id>/diagnostic-results/<unit_id>")
+    def api_student_diagnostic_results(student_id: str, unit_id: str):
+        unit = load_unit(unit_id)
+        if not unit:
+            return jsonify({"error": "unit_not_found"}), 404
+
+        diagnostic_quiz_id = unit.diagnostic_quiz_id
+        attempts = [
+            attempt
+            for attempt in load_attempts(student_id)
+            if attempt.quiz_type == "diagnostic" and attempt.unit_id == unit_id
+        ]
+        if not attempts:
+            return jsonify(
+                {
+                    "has_attempt": False,
+                    "unit": {"id": unit.id, "title": unit.title},
+                }
+            )
+
+        attempt = max(attempts, key=lambda a: a.created_at or 0)
+        quiz = load_quiz(diagnostic_quiz_id) if diagnostic_quiz_id else None
+        questions_lookup = load_questions()
+
+        questions_payload = []
+        correct_count = 0
+        for result in attempt.results:
+            question = questions_lookup.get(result.question_id)
+            is_correct = bool(result.correct)
+            if is_correct:
+                correct_count += 1
+            questions_payload.append(
+                {
+                    "question_id": result.question_id,
+                    "question_text": question.text if question else "",
+                    "options": question.options if question and question.options else [],
+                    "student_answer": result.chosen_answer,
+                    "correct_answer": question.correct_answer if question else None,
+                    "is_correct": is_correct,
+                }
+            )
+
+        total_questions = len(questions_payload)
+        percent_correct = (
+            round((correct_count / total_questions) * 100)
+            if total_questions
+            else round(attempt.score_pct)
+        )
+
+        quiz_payload = {
+            "id": diagnostic_quiz_id or attempt.quiz_id,
+            "title": quiz.title if quiz else f"{unit.title} diagnostic",
+            "unit_id": unit.id,
+        }
+
+        summary = {
+            "total_questions": total_questions,
+            "correct": correct_count,
+            "percent_correct": percent_correct,
+            "attempt_id": attempt.id,
+            "score_pct": attempt.score_pct,
+        }
+
+        return jsonify(
+            {
+                "has_attempt": True,
+                "unit": {"id": unit.id, "title": unit.title},
+                "quiz": quiz_payload,
+                "summary": summary,
+                "questions": questions_payload,
             }
         )
 

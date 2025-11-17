@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { UnitsAPI, type Unit } from "../services/unitsAPI";
 import { fetchAttempts } from "../../../lib/historyClient";
@@ -29,42 +34,42 @@ export default function UnitsPage() {
   const [nextActivity, setNextActivity] = useState<NextActivity | null>(null);
   const { hasTakenDiagnostic } = useProgress();
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
+  const loadUnits = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [unitData, attemptData] = await Promise.all([
+        UnitsAPI.listUnits(),
+        fetchAttempts(),
+      ]);
+      setUnits(unitData);
+      setAttempts(normalizeAttempts(attemptData || []));
       try {
-        setLoading(true);
-        setError(null);
-        const [unitData, attemptData] = await Promise.all([
-          UnitsAPI.listUnits(),
-          fetchAttempts(),
-        ]);
-        if (!mounted) return;
-        setUnits(unitData);
-        setAttempts(normalizeAttempts(attemptData || []));
-        try {
-          const data = await fetchNextActivity();
-          if (mounted && data) {
-            setNextActivity({
-              unitId: data.unit_id,
-              sectionId: data.section_id,
-              activity: data.activity,
-            });
-          }
-        } catch (recErr) {
-          if (mounted) setNextActivity(null);
+        const data = await fetchNextActivity();
+        if (data) {
+          setNextActivity({
+            unitId: data.unit_id,
+            sectionId: data.section_id,
+            activity: data.activity,
+          });
+        } else {
+          setNextActivity(null);
         }
-      } catch (err) {
-        console.error("Failed to load units", err);
-        if (mounted) setError("Unable to load units. Please try again.");
-      } finally {
-        if (mounted) setLoading(false);
+      } catch (recErr) {
+        console.warn("Next activity unavailable", recErr);
+        setNextActivity(null);
       }
-    })();
-    return () => {
-      mounted = false;
-    };
+    } catch (err) {
+      console.error("Failed to load units", err);
+      setError("We could not load your units right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadUnits();
+  }, [loadUnits]);
 
   const attemptIndex = useMemo(
     () => buildUnitAttemptIndex(attempts),
@@ -76,11 +81,11 @@ export default function UnitsPage() {
       units.map((unit) => {
         const unitAttempts = attemptIndex[unit.id]?.attempts ?? [];
         const mastery = calcMasteryScore(unitAttempts);
+        const diagnosticAttempted = hasDiagnosticAttempt(unit.id, attemptIndex);
         const diagUnlocked =
-          hasTakenDiagnostic(unit.id) ||
-          hasDiagnosticAttempt(unit.id, attemptIndex);
+          hasTakenDiagnostic(unit.id) || diagnosticAttempted;
         const recommended = nextActivity?.unitId === unit.id;
-        return { unit, mastery, diagUnlocked, recommended };
+        return { unit, mastery, diagUnlocked, recommended, diagnosticAttempted };
       }),
     [units, attemptIndex, hasTakenDiagnostic, nextActivity]
   );
@@ -89,7 +94,7 @@ export default function UnitsPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Your learning path</h1>
+          <h1>Your learning path 📚</h1>
           <p className="muted">
             Complete sections to unlock new content and master Grade 9 math.
           </p>
@@ -101,12 +106,31 @@ export default function UnitsPage() {
         </div>
       </div>
 
-      {loading && <div className="empty">Loading units…</div>}
-      {error && <div className="empty">{error}</div>}
+      {loading && (
+        <div className="card state-card">
+          <p className="muted small">Loading units…</p>
+        </div>
+      )}
 
-      {!loading && !error && (
+      {error && (
+        <div className="card state-card state-card-error">
+          <p className="error-text">{error}</p>
+          <button className="btn" onClick={loadUnits}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && enrichedUnits.length === 0 && (
+        <div className="card state-card">
+          <p style={{ marginBottom: 4 }}>No units are available yet.</p>
+          <p className="muted small">Ask your teacher to assign a unit.</p>
+        </div>
+      )}
+
+      {!loading && !error && enrichedUnits.length > 0 && (
         <div className="unit-path">
-          {enrichedUnits.map(({ unit, mastery, diagUnlocked, recommended }) => {
+          {enrichedUnits.map(({ unit, mastery, diagUnlocked, recommended, diagnosticAttempted }) => {
             const expanded = expandedUnit === unit.id;
             return (
               <div key={unit.id} className={`card unit-path-card ${expanded ? "expanded" : ""}`}>
@@ -128,15 +152,30 @@ export default function UnitsPage() {
                 >
                   <div>
                     <p className="muted small">Unit</p>
-                    <h3>{unit.title}</h3>
+                    <h3>
+                      <span aria-hidden="true" className="unit-emoji">
+                        📘
+                      </span>
+                      {unit.title}
+                    </h3>
                     <p className="muted small">{unit.description}</p>
                   </div>
                   <div className="unit-path-meta">
                     {recommended && (
-                      <span className="badge badge-recommend">Recommended</span>
+                      <span className="status-pill status-recommended">
+                        Recommended 🎯
+                      </span>
                     )}
                     <span className="unit-progress-value">{mastery}%</span>
-                    <p className="muted small">Mastery</p>
+                    <p className="muted small">
+                      Mastery{" "}
+                      <span
+                        className="helper-hint"
+                        title="Mastery is a score from 0 to 1 (shown here as a percentage) estimated from recent mini quiz and unit test attempts."
+                      >
+                        i
+                      </span>
+                    </p>
                     <span
                       className={`badge ${
                         diagUnlocked ? "badge-unlocked" : "badge-locked"
@@ -156,10 +195,14 @@ export default function UnitsPage() {
                   <button
                     className="btn primary"
                     onClick={() => {
-                      nav(`/units/${unit.id}/diagnostic`);
+                      if (diagnosticAttempted) {
+                        nav(`/diagnostic-results/${unit.id}`);
+                      } else {
+                        nav(`/units/${unit.id}/diagnostic`);
+                      }
                     }}
                   >
-                    {diagUnlocked ? "View diagnostic" : "Start diagnostic"}
+                    {diagnosticAttempted ? "Review diagnostic results" : "Take diagnostic"}
                   </button>
                   <button
                     className="btn secondary"
@@ -205,10 +248,16 @@ export default function UnitsPage() {
                             </p>
                           </div>
                           <div className="section-preview-actions">
-                            <span className="badge">{stats.status}</span>
+                            <span
+                              className={`status-pill status-${stats.status
+                                .toLowerCase()
+                                .replace(" ", "-")}`}
+                            >
+                              {stats.status}
+                            </span>
                             {sectionRecommended && (
-                              <span className="badge badge-recommend">
-                                Recommended
+                              <span className="status-pill status-recommended">
+                                Recommended 🎯
                               </span>
                             )}
                             <button

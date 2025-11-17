@@ -7,6 +7,7 @@ export type TeacherStudentSummary = {
   questions_answered: number;
   attempt_count: number;
   last_activity_at: string | null;
+  hint_usage_rate?: number | null;
 };
 
 export type TeacherUnitSummary = {
@@ -15,9 +16,18 @@ export type TeacherUnitSummary = {
   average_mastery: number;
   attempt_count: number;
   student_count: number;
+  hint_usage_rate?: number | null;
+};
+
+export type TeacherOverviewSummary = {
+  total_students: number;
+  average_mastery: number;
+  total_attempts: number;
+  average_hint_usage: number | null;
 };
 
 export type TeacherOverviewResponse = {
+  summary?: TeacherOverviewSummary | null;
   students: TeacherStudentSummary[];
   units: TeacherUnitSummary[];
 };

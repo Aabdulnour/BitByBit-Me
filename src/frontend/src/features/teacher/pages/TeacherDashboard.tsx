@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchTeacherOverview,
   fetchTeacherStudentDetail,
+  type TeacherOverviewSummary,
   type TeacherStudentSummary,
   type TeacherUnitSummary,
 } from "../../../lib/teacherClient";
@@ -10,9 +11,10 @@ import StudentDetailDrawer, {
   type StudentDetailState,
 } from "../components/StudentDetailDrawer";
 
-const initialOverview = { students: [], units: [] };
+const initialOverview = { summary: null, students: [], units: [] };
 
 type OverviewState = {
+  summary: TeacherOverviewSummary | null;
   students: TeacherStudentSummary[];
   units: TeacherUnitSummary[];
 };
@@ -30,21 +32,41 @@ function formatCount(count: number) {
   return count.toLocaleString();
 }
 
+function formatHintUsage(rate?: number | null) {
+  if (rate == null) return "—";
+  const pct = Math.round(rate * 100);
+  if (pct >= 60) return `${pct}% • High`;
+  if (pct >= 30) return `${pct}% • Medium`;
+  return `${pct}% • Low`;
+}
+
+function formatPercent(rate?: number | null, fallback = "—") {
+  if (rate == null) return fallback;
+  return `${Math.round(rate * 100)}%`;
+}
+
 export default function TeacherDashboard() {
   const [overview, setOverview] = useState<OverviewState>(initialOverview);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [studentDetails, setStudentDetails] = useState<Record<string, StudentDetailState>>({});
+  const [studentFilter, setStudentFilter] = useState("");
+  const [sortOption, setSortOption] = useState<"name" | "mastery" | "activity">("name");
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchTeacherOverview();
-      setOverview({ students: data.students, units: data.units });
+      setOverview({
+        summary: data.summary ?? null,
+        students: data.students,
+        units: data.units,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to load overview");
+      console.error("Failed to load teacher overview", err);
+      setError("We could not load the teacher overview right now.");
     } finally {
       setLoading(false);
     }
@@ -106,6 +128,81 @@ export default function TeacherDashboard() {
     return overview.students.find((s) => s.student_id === selectedStudentId);
   }, [overview.students, selectedStudentId]);
 
+  const summaryStats = useMemo(() => {
+    const summary =
+      overview.summary ?? {
+        total_students: overview.students.length,
+        average_mastery: 0,
+        total_attempts: 0,
+        average_hint_usage: null,
+      };
+    return [
+      {
+        label: "Total students",
+        value: formatCount(summary.total_students || 0),
+        sublabel: "Enrolled in BitByBit",
+      },
+      {
+        label: "Average mastery",
+        value: `${Math.round(summary.average_mastery || 0)}%`,
+        sublabel: "Class-wide mastery",
+        helper:
+          "Mastery is a score from 0 to 1 (shown as a percent) estimated from graded activities.",
+      },
+      {
+        label: "Total attempts",
+        value: formatCount(summary.total_attempts || 0),
+        sublabel: "Across all quizzes",
+      },
+      {
+        label: "Average hint usage",
+        value:
+          summary.average_hint_usage != null
+            ? formatPercent(summary.average_hint_usage)
+            : "Not enough data",
+        sublabel: "Hints per attempt",
+        helper:
+          "Hint usage is the percentage of questions where students requested a hint.",
+      },
+    ];
+  }, [overview.summary, overview.students.length]);
+
+  const unitsNeedingAttention = useMemo(
+    () =>
+      overview.units
+        .filter((unit) => (unit.average_mastery ?? 0) < 50)
+        .sort(
+          (a, b) =>
+            (a.average_mastery ?? 0) - (b.average_mastery ?? 0)
+        ),
+    [overview.units]
+  );
+
+  const filteredStudents = useMemo(() => {
+    const filter = studentFilter.trim().toLowerCase();
+    let list = overview.students;
+    if (filter) {
+      list = list.filter((student) =>
+        student.name.toLowerCase().includes(filter)
+      );
+    }
+    const sorted = [...list];
+    sorted.sort((a, b) => {
+      if (sortOption === "mastery") {
+        return (b.overall_mastery || 0) - (a.overall_mastery || 0);
+      }
+      if (sortOption === "activity") {
+        const aTime = a.last_activity_at ? Date.parse(a.last_activity_at) : 0;
+        const bTime = b.last_activity_at ? Date.parse(b.last_activity_at) : 0;
+        return bTime - aTime;
+      }
+      return a.name.localeCompare(b.name);
+    });
+    return sorted;
+  }, [overview.students, studentFilter, sortOption]);
+
+  const hasStudents = overview.students.length > 0;
+
   return (
     <div className="page teacher-dashboard">
       <div className="page-header">
@@ -118,18 +215,71 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
+      {!loading && !error && summaryStats && (
+        <div className="teacher-summary-grid">
+          {summaryStats.map((card) => (
+            <div key={card.label} className="teacher-summary-card">
+              <p className="muted small">
+                {card.label}{" "}
+                {card.helper && (
+                  <span className="helper-hint inline" title={card.helper}>
+                    i
+                  </span>
+                )}
+              </p>
+              <strong className="teacher-summary-value">{card.value}</strong>
+              <p className="muted small">{card.sublabel}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {loading && (
-        <div className="card teacher-card">
-          <p className="muted small">Loading class insights…</p>
+        <div className="card state-card">
+          <p className="muted small">Loading class overview…</p>
         </div>
       )}
 
       {!loading && error && (
-        <div className="card teacher-card">
+        <div className="card state-card state-card-error">
           <p className="error-text">{error}</p>
           <button className="btn" onClick={loadOverview}>
             Retry
           </button>
+        </div>
+      )}
+
+      {!loading && !error && !hasStudents && (
+        <div className="card state-card">
+          <p style={{ marginBottom: 4 }}>No students enrolled yet.</p>
+          <p className="muted small">
+            Invite your first class to unlock mastery and hint usage analytics.
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <div className="card attention-card">
+          <div className="card-head">
+            <div>
+              <p className="muted small">Units that need attention</p>
+              <h3 style={{ margin: "4px 0" }}>Below 50% mastery</h3>
+            </div>
+          </div>
+          {unitsNeedingAttention.length === 0 ? (
+            <p className="muted small">
+              No units need special attention right now.
+            </p>
+          ) : (
+            <ul className="attention-list">
+              {unitsNeedingAttention.slice(0, 3).map((unit) => (
+                <li key={unit.unit_id}>
+                  <strong>{unit.unit_name}</strong>
+                  <span>{Math.round(unit.average_mastery ?? 0)}% mastery</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
@@ -144,34 +294,86 @@ export default function TeacherDashboard() {
                 </p>
               </div>
             </div>
-            {overview.students.length === 0 ? (
+            {!hasStudents ? (
               <p className="muted small">Add students to view their progress.</p>
             ) : (
-              <div className="teacher-table" role="table">
-                <div className="teacher-table-head" role="row">
-                  <span>Name</span>
-                  <span>Mastery</span>
-                  <span>Questions</span>
-                  <span>Attempts</span>
-                  <span>Last activity</span>
-                </div>
-                <div className="teacher-table-body">
-                  {overview.students.map((student) => (
-                    <button
-                      key={student.student_id}
-                      type="button"
-                      className="teacher-table-row"
-                      onClick={() => handleSelectStudent(student.student_id)}
+              <>
+                <div className="teacher-controls">
+                  <label>
+                    <span className="muted small">Filter</span>
+                    <input
+                      className="input"
+                      type="text"
+                      placeholder="Search students"
+                      value={studentFilter}
+                      onChange={(event) => setStudentFilter(event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span className="muted small">Sort by</span>
+                    <select
+                      className="input"
+                      value={sortOption}
+                      onChange={(event) =>
+                        setSortOption(event.target.value as typeof sortOption)
+                      }
                     >
-                      <span>{student.name}</span>
-                      <span>{student.overall_mastery}%</span>
-                      <span>{formatCount(student.questions_answered)}</span>
-                      <span>{formatCount(student.attempt_count)}</span>
-                      <span>{formatLastActivity(student.last_activity_at)}</span>
-                    </button>
-                  ))}
+                      <option value="name">Name (A-Z)</option>
+                      <option value="mastery">Overall mastery</option>
+                      <option value="activity">Last activity</option>
+                    </select>
+                  </label>
                 </div>
-              </div>
+                {filteredStudents.length === 0 ? (
+                  <p className="muted small">
+                    No students match that search. Try adjusting your filters.
+                  </p>
+                ) : (
+                  <div className="teacher-table" role="table">
+                    <div className="teacher-table-head" role="row">
+                      <span>Name</span>
+                      <span>
+                        Mastery{" "}
+                        <span
+                          className="helper-hint inline"
+                          title="Mastery is a score from 0 to 1 (shown as a percent) estimated from mini quizzes and unit tests."
+                        >
+                          i
+                        </span>
+                      </span>
+                      <span>Questions</span>
+                      <span>Attempts</span>
+                      <span>
+                        Hint usage{" "}
+                        <span
+                          className="helper-hint inline"
+                          title="Hint usage is the percentage of questions where a hint was requested."
+                        >
+                          i
+                        </span>
+                      </span>
+                      <span>Last activity</span>
+                    </div>
+                    <div className="teacher-table-body">
+                      {filteredStudents.map((student) => (
+                        <button
+                          key={student.student_id}
+                          type="button"
+                          className="teacher-table-row"
+                          onClick={() => handleSelectStudent(student.student_id)}
+                        >
+                          <span>{student.name}</span>
+                          <span>{student.overall_mastery}%</span>
+                          <span>{formatCount(student.questions_answered)}</span>
+                          <span>{formatCount(student.attempt_count)}</span>
+                          <span>{formatHintUsage(student.hint_usage_rate)}</span>
+                          <span>{formatLastActivity(student.last_activity_at)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -187,19 +389,54 @@ export default function TeacherDashboard() {
             {overview.units.length === 0 ? (
               <p className="muted small">No unit activity yet.</p>
             ) : (
-              <ul className="teacher-units">
-                {overview.units.map((unit) => (
-                  <li key={unit.unit_id}>
-                    <div>
-                      <strong>{unit.unit_name}</strong>
+              <div className="teacher-unit-grid">
+                {overview.units.map((unit) => {
+                  const hintUsagePct =
+                    unit.hint_usage_rate != null
+                      ? Math.round(unit.hint_usage_rate * 100)
+                      : null;
+                  const highHintUsage = (unit.hint_usage_rate ?? 0) >= 0.5;
+                  return (
+                    <div key={unit.unit_id} className="teacher-unit-card">
+                      <div className="teacher-unit-card-head">
+                        <strong>{unit.unit_name}</strong>
+                        <span className="unit-mastery-pill">{unit.average_mastery}%</span>
+                      </div>
                       <p className="muted small">
-                        {unit.student_count} students • {unit.attempt_count} attempts
+                        {unit.student_count}{" "}
+                        {unit.student_count === 1 ? "student" : "students"} engaged
                       </p>
+                      <div className="teacher-unit-card-body">
+                        <div>
+                          <p className="muted tiny">Attempts</p>
+                          <strong>{formatCount(unit.attempt_count)}</strong>
+                          {unit.attempt_count === 0 && (
+                            <span className="muted tiny helper-text">No attempts yet</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="muted tiny">
+                            Hint usage{" "}
+                            <span
+                              className="helper-hint inline"
+                              title="Hint usage is the percentage of questions where students requested a hint."
+                            >
+                              i
+                            </span>
+                          </p>
+                          <strong>{hintUsagePct != null ? `${hintUsagePct}%` : "No data"}</strong>
+                        </div>
+                      </div>
+                      {highHintUsage && (
+                        <p className="muted small emphasis">
+                          High hint usage flagged
+                          {hintUsagePct != null ? ` (${hintUsagePct}% of attempts)` : ""}.
+                        </p>
+                      )}
                     </div>
-                    <span className="unit-mastery-pill">{unit.average_mastery}%</span>
-                  </li>
-                ))}
-              </ul>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>

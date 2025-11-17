@@ -17,6 +17,7 @@ from .models import (
     NextActivity,
     TeacherStudentSummary,
     TeacherUnitSummary,
+    User,
 )
 
 
@@ -44,6 +45,7 @@ UNITS_PATH = DATA_DIR / "units.json"
 QUESTIONS_PATH = DATA_DIR / "questions.json"
 QUIZZES_PATH = DATA_DIR / "quizzes.json"
 STUDENTS_PATH = DATA_DIR / "students.json"
+USERS_PATH = DATA_DIR / "users.json"
 ATTEMPTS_PATH = DATA_DIR / "attempts.json"
 MASTERY_QUIZ_TYPES = {"mini_quiz", "unit_test"}
 
@@ -79,12 +81,15 @@ def _deserialize_student_state(data: Dict[str, Any]) -> StudentState:
     return StudentState(
         student_id=data["student_id"],
         name=data.get("name", f"Student {data['student_id']}"),
+        email=data.get("email"),
         grade_level=data.get("grade_level", "9"),
         preferred_difficulty=data.get("preferred_difficulty", "medium"),
         mastery_by_skill=mastery,
         last_unit_id=data.get("last_unit_id"),
         last_section_id=data.get("last_section_id"),
         last_activity=data.get("last_activity"),
+        avatar_url=data.get("avatar_url"),
+        avatar_name=data.get("avatar_name"),
     )
 
 
@@ -105,6 +110,42 @@ def get_all_students() -> List[StudentState]:
     students = [_deserialize_student_state(data) for data in raw.values()]
     students.sort(key=lambda s: s.name.lower())
     return students
+
+
+def _next_student_id(raw: Dict[str, Any]) -> str:
+    max_index = 1
+    for key in raw.keys():
+        if key.startswith("student-"):
+            try:
+                idx = int(key.split("-", 1)[1])
+                max_index = max(max_index, idx)
+            except ValueError:
+                continue
+    return f"student-{max_index + 1}"
+
+
+def create_student(name: str, email: Optional[str] = None) -> StudentState:
+    """
+    Create a new demo student entry with default data.
+    """
+
+    raw = _load_json(STUDENTS_PATH, {})
+    student_id = _next_student_id(raw) if raw else "student-2"
+    normalized_name = name.strip() or f"Student {student_id}"
+    fallback_email = email or f"{student_id}@example.edu"
+    state = StudentState(
+        student_id=student_id,
+        name=normalized_name,
+        email=fallback_email,
+        grade_level="9",
+        preferred_difficulty="medium",
+        mastery_by_skill={},
+        avatar_url=None,
+        avatar_name=None,
+    )
+    raw[student_id] = state.to_dict()
+    _save_json(STUDENTS_PATH, raw)
+    return state
 
 
 def save_student(state: StudentState) -> None:
@@ -241,6 +282,10 @@ def compute_teacher_student_summaries() -> List[TeacherStudentSummary]:
         mastery_scores = _mastery_scores_for_attempts(student_attempts)
         questions_answered = sum(len(a.results or []) for a in student_attempts)
         attempt_count = len(student_attempts)
+        hint_attempts = sum(
+            1 for attempt in student_attempts if any(r.used_hint for r in attempt.results)
+        )
+        hint_rate = (hint_attempts / attempt_count) if attempt_count else None
         last_activity = None
         if student_attempts:
             last_attempt = max(student_attempts, key=lambda a: a.created_at)
@@ -255,6 +300,7 @@ def compute_teacher_student_summaries() -> List[TeacherStudentSummary]:
                 questions_answered=questions_answered,
                 attempt_count=attempt_count,
                 last_activity_at=last_activity,
+                hint_usage_rate=hint_rate,
             )
         )
 
@@ -289,6 +335,10 @@ def compute_teacher_unit_summaries() -> List[TeacherUnitSummary]:
         per_student_mastery = [
             _average(scores) for scores in mastery_entries.values() if scores
         ]
+        hint_attempts = sum(
+            1 for attempt in unit_attempts if any(r.used_hint for r in attempt.results)
+        )
+        hint_rate = (hint_attempts / len(unit_attempts)) if unit_attempts else None
         summaries.append(
             TeacherUnitSummary(
                 unit_id=unit.id,
@@ -296,6 +346,7 @@ def compute_teacher_unit_summaries() -> List[TeacherUnitSummary]:
                 average_mastery=_average(per_student_mastery),
                 attempt_count=len(unit_attempts),
                 student_count=len(students_with_activity),
+                hint_usage_rate=hint_rate,
             )
         )
 
@@ -413,3 +464,25 @@ def get_next_activity_for_student(student_id: str) -> NextActivity:
         section_id=None,
         activity=fallback_activity,
     )
+
+
+def get_user_by_email(email: str) -> Optional[User]:
+    normalized = (email or "").strip().lower()
+    if not normalized:
+        return None
+    raw = _load_json(USERS_PATH, [])
+    for entry in raw:
+        entry_email = (entry.get("email") or "").strip().lower()
+        if entry_email != normalized:
+            continue
+        try:
+            return User(
+                id=entry["id"],
+                email=entry["email"],
+                password=entry["password"],
+                role=entry.get("role", "student"),
+                student_id=entry.get("student_id"),
+            )
+        except KeyError:
+            continue
+    return None

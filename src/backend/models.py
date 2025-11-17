@@ -62,23 +62,29 @@ class SkillMastery:
 class StudentState:
     student_id: str
     name: str
+    email: Optional[str] = None
     grade_level: str = "9"
     preferred_difficulty: Difficulty = "medium"
     mastery_by_skill: Dict[str, SkillMastery] = field(default_factory=dict)
     last_unit_id: Optional[str] = None
     last_section_id: Optional[str] = None
     last_activity: Optional[str] = None
+    avatar_url: Optional[str] = None
+    avatar_name: Optional[str] = None
 
     def to_dict(self) -> Dict:
         return {
             "student_id": self.student_id,
             "name": self.name,
+            "email": self.email,
             "grade_level": self.grade_level,
             "preferred_difficulty": self.preferred_difficulty,
             "mastery_by_skill": {k: v.to_dict() for k, v in self.mastery_by_skill.items()},
             "last_unit_id": self.last_unit_id,
             "last_section_id": self.last_section_id,
             "last_activity": self.last_activity,
+            "avatar_url": self.avatar_url,
+            "avatar_name": self.avatar_name,
         }
 
 
@@ -157,6 +163,7 @@ class TeacherStudentSummary:
     questions_answered: int
     attempt_count: int
     last_activity_at: Optional[str]
+    hint_usage_rate: Optional[float] = None
 
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -173,6 +180,30 @@ class TeacherUnitSummary:
     average_mastery: float
     attempt_count: int
     student_count: int
+    hint_usage_rate: Optional[float] = None
+
+    def to_dict(self) -> Dict:
+        return asdict(self)
+
+
+Role = Literal["student", "teacher"]
+
+
+@dataclass
+class User:
+    id: str
+    email: str
+    password: str
+    role: Role
+    student_id: Optional[str] = None
+
+    def to_safe_dict(self) -> Dict:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "role": self.role,
+            "student_id": self.student_id,
+        }
 
     def to_dict(self) -> Dict:
         return asdict(self)

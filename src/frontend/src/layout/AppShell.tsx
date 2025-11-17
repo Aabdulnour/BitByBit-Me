@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   readStoredViewMode,
   VIEW_MODE_EVENT,
   type ViewMode,
+  clearStoredViewMode,
 } from "../lib/viewMode";
+import { clearCurrentUser } from "../lib/authClient";
+import { clearCurrentStudentId } from "../lib/currentStudent";
 
 interface Props {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  userRole?: ViewMode;
 }
 
-export default function AppShell({ children }: Props) {
+export default function AppShell({ children, userRole }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("student");
+  const nav = useNavigate();
 
   useEffect(() => {
     const syncMode = () => {
@@ -29,11 +34,12 @@ export default function AppShell({ children }: Props) {
     };
   }, []);
 
-  const isTeacherMode = viewMode === "teacher";
+  const effectiveMode: ViewMode =
+    userRole === "teacher" ? viewMode : "student";
+  const isTeacherMode = effectiveMode === "teacher";
   const navLinks = isTeacherMode
     ? [
         { to: "/teacher", label: "Teacher dashboard" },
-        { to: "/", label: "Student home", end: true },
       ]
     : [
         { to: "/", label: "Home", end: true },
@@ -41,6 +47,13 @@ export default function AppShell({ children }: Props) {
         { to: "/history", label: "History" },
         { to: "/profile", label: "Profile" },
       ];
+
+  const handleSignOut = () => {
+    clearCurrentUser();
+    clearCurrentStudentId();
+    clearStoredViewMode();
+    nav("/login", { replace: true });
+  };
 
   return (
     <div className="app-shell">
@@ -74,6 +87,13 @@ export default function AppShell({ children }: Props) {
           >
             ⚙️ Settings
           </NavLink>
+          <button
+            type="button"
+            className="nav-link nav-link-ghost"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button>
         </div>
       </aside>
       <main className="app-main">{children}</main>

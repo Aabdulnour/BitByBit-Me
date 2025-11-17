@@ -1,0 +1,117 @@
+BIG SPRINT 11
+
+From MVP to “this feels like a real product”
+
+High level goals
+• Keep the current MVP behavior working and stable.
+• Make the experience feel smooth for both students and teachers, with clear flows and fewer rough edges.
+• Show a believable path to ML and avatar features, even if some pieces are “coming soon”.
+
+1. Login and shell polish
+User story
+As a student or teacher, I want sign in to feel simple and intentional so I trust the app and know I am in the right mode.
+
+Tasks
+• Keep Student / Teacher toggle centered and each button at half width on the row.
+• Add subtle hover and active styles so the selected mode is obvious.
+• Keep forgot password minimal for now:
+  • Small, quiet link under the main form
+  • Basic placeholder view only, no deep logic required this sprint
+• Make sure the shell navigation clearly separates:
+  • Student view
+  • Teacher view
+  • No confusing links that jump between them
+
+2. Full diagnostic review UX
+User story
+As a student, after I finish my unit diagnostic, I can review what I did without feeling like I have to retake it.
+
+Backend
+• Add an endpoint similar to:
+  GET /api/student/:studentId/diagnostic-results/:unitId
+• Behavior:
+  • Returns has_attempt: false if no diagnostic attempt exists for that unit
+  • Otherwise returns:
+    • Quiz details for that diagnostic
+    • For each question:
+      • question text
+      • options
+      • student answer
+      • correct answer
+      • is_correct flag
+
+Frontend
+• On Units page:
+  • If no diagnostic attempt: show “Take diagnostic”
+  • Once a diagnostic attempt exists: show “Review diagnostic results”
+  • Entry point goes to /diagnostic-results/:unitId
+  • Do not offer a retake from this entry point
+• Diagnostic results page:
+  • Header with unit name and diagnostic score summary
+  • List of questions with:
+    • Question text
+    • Student answer vs correct answer
+    • Clear correctness chip
+  • “Back to unit” button
+
+3. Ready Player Me avatar flow
+User story
+As a student, I want to customize my avatar through a fun editor and see it across the app, without pasting URLs.
+
+This sprint goal
+Make the path clear and get the “coming soon” UX tight. Do only the minimum embed work you realistically have time for.
+
+Tasks
+• Profile page:
+  • Keep current avatar section but:
+    • Show a nice default avatar if no URL is set
+    • Copy clearly states something like “Custom avatars powered by Ready Player Me are coming soon”
+  • When avatar exists:
+    • Show it large on Profile
+    • Show a small circle preview on Home
+  • (Stretch) Begin wiring Ready Player Me:
+    • Add an “Open avatar editor” button that opens an iframe modal
+    • Handle a simple postMessage with the final URL and store it
+    • For now, this can target one hard coded RPM experience URL and a simple listener
+
+4. Teacher dashboard analytics and UX polish
+User story
+As a teacher, I want to quickly understand where my class is struggling and drill into a student without fighting the UI.
+
+Fixes
+• Student detail panel:
+  • Make the detail content scroll within the panel like described above
+  • Ensure selection state is clear in the students list
+
+Analytics
+• At the top of teacher overview, show:
+  • Total students
+  • Average mastery for the class
+  • Total attempts
+  • Average hint usage
+• For each unit:
+  • Unit tile with:
+    • Unit name
+    • Average mastery
+    • Attempt count
+    • Hint usage rate
+  • Make tiles visually consistent with student cards
+
+Student detail view
+• When clicking a student:
+  • Fixed header with:
+    • Student name
+    • Overall mastery
+    • Quick stats (attempts, last activity)
+  • Scrollable body with:
+    • Per unit mastery list
+    • Table of recent attempts with:
+      • Date
+      • Quiz type (diagnostic, mini, practice, unit)
+      • Score or result
+      • Hint usage
+
+5. General UX polish
+• Consistent use of spacing, font sizes, and card styles across student and teacher views.
+• Make loading states explicit where data fetches take more than a moment.
+• Ensure all main flows work on a laptop sized screen without awkward scrolling.

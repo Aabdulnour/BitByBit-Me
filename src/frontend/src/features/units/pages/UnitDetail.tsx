@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UnitsAPI, type Unit } from "../services/unitsAPI";
 import { fetchAttempts } from "../../../lib/historyClient";
@@ -9,6 +14,7 @@ import {
   buildUnitAttemptIndex,
   calcMasteryScore,
   classifyPlacement,
+  describePlacement,
   filterAttemptsByType,
   getSectionStats,
   hasDiagnosticAttempt,
@@ -23,38 +29,37 @@ export default function UnitDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const { hasTakenDiagnostic, markDiagnosticTaken } = useProgress();
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      if (!unitId) {
+  const loadUnitDetail = useCallback(async () => {
+    if (!unitId) {
+      setError("Unit not found.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const [unitData, attemptData] = await Promise.all([
+        UnitsAPI.getUnit(unitId),
+        fetchAttempts(),
+      ]);
+      if (!unitData) {
         setError("Unit not found.");
-        setLoading(false);
-        return;
+        setUnit(null);
+      } else {
+        setUnit(unitData);
       }
-      try {
-        setLoading(true);
-        const [unitData, attemptData] = await Promise.all([
-          UnitsAPI.getUnit(unitId),
-          fetchAttempts(),
-        ]);
-        if (!mounted) return;
-        if (!unitData) {
-          setError("Unit not found.");
-        } else {
-          setUnit(unitData);
-        }
-        setAttempts(normalizeAttempts(attemptData || []));
-      } catch (err) {
-        console.error("Failed to load unit detail", err);
-        if (mounted) setError("Unable to load unit details.");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
+      setAttempts(normalizeAttempts(attemptData || []));
+    } catch (err) {
+      console.error("Failed to load unit detail", err);
+      setError("We could not load this unit right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [unitId]);
+
+  useEffect(() => {
+    loadUnitDetail();
+  }, [loadUnitDetail]);
 
   const unitAttempts = useMemo(() => {
     if (!unitId) return [];
@@ -110,7 +115,9 @@ export default function UnitDetailPage() {
   if (loading) {
     return (
       <div className="page">
-        <div className="empty">Loading unit…</div>
+        <div className="card state-card">
+          <p className="muted small">Loading unit…</p>
+        </div>
       </div>
     );
   }
@@ -118,16 +125,65 @@ export default function UnitDetailPage() {
   if (error || !unit) {
     return (
       <div className="page">
-        <div className="empty">{error || "Unit not found."}</div>
+        <div className="card state-card state-card-error">
+          <p className="error-text">{error || "Unit not found."}</p>
+          <button className="btn" onClick={loadUnitDetail}>
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   const diagnosticTaken = storedTaken || hasDiagnosticRecord;
   const placementLevel = classifyPlacement(latestDiagnosticAttempt?.scorePct);
+  const placementDescription = describePlacement(placementLevel);
+  const diagnosticScore = latestDiagnosticAttempt?.scorePct ?? null;
 
   return (
     <div className="page">
+      <div className="card diagnostic-card">
+        {diagnosticTaken ? (
+          <div className="diagnostic-summary">
+            <div>
+              <p className="muted small">Unit diagnostic</p>
+              <h3>Diagnostic completed</h3>
+              <p className="muted small">{placementDescription}</p>
+            </div>
+            <div className="diagnostic-score">
+              <span>{diagnosticScore != null ? `${diagnosticScore}%` : "—"}</span>
+              <p className="muted small">
+                Placement {placementLevel || "Pending"}
+              </p>
+            </div>
+            <div className="diagnostic-actions">
+              <button
+                className="btn secondary"
+                onClick={() => nav(`/diagnostic-results/${unit.id}`)}
+              >
+                Review diagnostic results
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="diagnostic-intro">
+            <div>
+              <p className="muted small">Unit diagnostic</p>
+              <h3>Find your starting point</h3>
+              <p className="muted small">
+                A quick check to place you at the right level for this unit.
+              </p>
+            </div>
+            <button
+              className="btn primary"
+              onClick={() => nav(`/units/${unit.id}/diagnostic`)}
+            >
+              Take diagnostic
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="card unit-hero-card">
         <div>
           <p className="muted small">Unit</p>
@@ -137,25 +193,15 @@ export default function UnitDetailPage() {
           </p>
         </div>
         <div className="hero-actions">
-          <div className="unit-hero-meta">
-            {placementLevel && (
-              <span className="placement-pill">
-                Your starting level: {placementLevel}
-              </span>
-            )}
-            {latestDiagnosticAttempt?.scorePct != null && (
-              <p className="muted small">
-                Diagnostic score: {latestDiagnosticAttempt.scorePct}%
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="hero-actions">
           <button
             className="btn primary"
-            onClick={() => nav(`/units/${unit.id}/diagnostic`)}
+            onClick={() =>
+              diagnosticTaken
+                ? nav(`/diagnostic-results/${unit.id}`)
+                : nav(`/units/${unit.id}/diagnostic`)
+            }
           >
-            {diagnosticTaken ? "View diagnostic" : "Start diagnostic"}
+            {diagnosticTaken ? "Review diagnostic results" : "Take diagnostic"}
           </button>
           <button
             className="btn"
@@ -168,7 +214,15 @@ export default function UnitDetailPage() {
       </div>
 
       <div className="card mastery-card">
-        <h3>Mastery snapshot</h3>
+        <div className="card-head compact">
+          <h3>Mastery snapshot</h3>
+          <span
+            className="helper-hint"
+            title="Mastery is a score from 0 to 1 (displayed here as a percent) estimated from recent mini quiz and unit test attempts."
+          >
+            i
+          </span>
+        </div>
         <div className="stat-grid">
           <div>
             <p className="muted small">Mastery average</p>
@@ -220,7 +274,15 @@ export default function UnitDetailPage() {
                   )}
                 </div>
                 <div className="section-actions">
-                  <span className={`badge ${locked ? "badge-locked" : ""}`}>
+                  <span
+                    className={`status-pill ${
+                      locked
+                        ? "status-locked"
+                        : `status-${sectionStats.status
+                            .toLowerCase()
+                            .replace(" ", "-")}`
+                    }`}
+                  >
                     {locked ? "Locked" : sectionStats.status}
                   </span>
                   <button

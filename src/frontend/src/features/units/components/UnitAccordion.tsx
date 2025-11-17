@@ -22,7 +22,7 @@ export default function UnitAccordion({ unit }: { unit: Unit }) {
             <strong>Diagnostic Test Required</strong>
             <p className="muted">Take a quick diagnostic test to personalize your learning path</p>
           </div>
-          <Link to={`/units/${unit.id}/diagnostic`} className="btn primary">Start Diagnostic</Link>
+          <Link to={`/units/${unit.id}/diagnostic`} className="btn primary">Take diagnostic</Link>
         </div>
       )}
 

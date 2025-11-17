@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchAttempts } from "../../../lib/historyClient";
 import { normalizeAttempts } from "../../../lib/attempts";
@@ -29,61 +34,59 @@ export default function HistoryPage() {
   const [unitFilter, setUnitFilter] = useState<string>("all");
   const [sortMode, setSortMode] = useState<"date" | "score">("date");
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const [attemptData, unitData] = await Promise.all([
-          fetchAttempts(),
-          UnitsAPI.listUnits(),
-        ]);
-        if (cancelled) return;
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [attemptData, unitData] = await Promise.all([
+        fetchAttempts(),
+        UnitsAPI.listUnits(),
+      ]);
 
-        const normalizedAttempts: AttemptRecord[] = normalizeAttempts(
-          attemptData || []
-        );
+      const normalizedAttempts: AttemptRecord[] = normalizeAttempts(
+        attemptData || []
+      );
 
-        const uniqueQuizIds = Array.from(
-          new Set(normalizedAttempts.map((a) => a.quizId))
-        );
+      const uniqueQuizIds = Array.from(
+        new Set(normalizedAttempts.map((a) => a.quizId))
+      );
 
-        const quizEntries = await Promise.all(
-          uniqueQuizIds.map(async (id) => {
-            try {
-              const quiz = await UnitsAPI.getQuiz(id);
-              return quiz ? [id, quiz] : null;
-            } catch {
-              return null;
-            }
-          })
-        );
-
-        const quizMap: Record<string, Quiz> = {};
-        quizEntries.forEach((entry) => {
-          if (entry) {
-            quizMap[entry[0]] = entry[1];
+      const quizEntries = await Promise.all(
+        uniqueQuizIds.map(async (id) => {
+          try {
+            const quiz = await UnitsAPI.getQuiz(id);
+            return quiz ? [id, quiz] : null;
+          } catch {
+            return null;
           }
-        });
+        })
+      );
 
-        setUnits(unitData);
-        setQuizzes(quizMap);
-        setAttempts(normalizedAttempts);
-      } catch (err) {
-        console.error("Failed to load history", err);
-        if (!cancelled) {
-          setError("Unable to load quiz history. Please try again later.");
+      const quizMap: Record<string, Quiz> = {};
+      quizEntries.forEach((entry) => {
+        if (entry) {
+          quizMap[entry[0]] = entry[1];
         }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
+      });
 
-    return () => {
-      cancelled = true;
-    };
+      setUnits(unitData);
+      setQuizzes(quizMap);
+      setAttempts(normalizedAttempts);
+    } catch (err) {
+      console.error("Failed to load history", err);
+      setError("We could not load your quiz history right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
+
+  const handleRetry = useCallback(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const unitsById = useMemo(() => {
     return units.reduce<Record<string, Unit>>((acc, unit) => {
@@ -139,7 +142,9 @@ export default function HistoryPage() {
   if (loading) {
     return (
       <div className="page">
-        <div className="empty">Loading quiz history…</div>
+        <div className="card state-card">
+          <p className="muted small">Loading quiz history…</p>
+        </div>
       </div>
     );
   }
@@ -147,7 +152,12 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="page">
-        <div className="empty">{error}</div>
+        <div className="card state-card state-card-error">
+          <p className="error-text">{error}</p>
+          <button className="btn" onClick={handleRetry}>
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -171,9 +181,9 @@ export default function HistoryPage() {
       </div>
 
       {attempts.length === 0 ? (
-        <div className="card empty-card">
+        <div className="card empty-card history-empty-card">
           <p style={{ marginBottom: 8 }}>
-            You have not taken any quizzes yet.
+            No history yet. Start by taking your first diagnostic.
           </p>
           {firstUnit ? (
             <button
@@ -208,7 +218,7 @@ export default function HistoryPage() {
           <div className="card chart-card">
             <div className="card-head">
               <div>
-                <h3>Progress over time</h3>
+                <h3>Progress over time 📈</h3>
                 <p className="muted small">
                   Hover the points to inspect your recent scores.
                 </p>
@@ -258,7 +268,15 @@ export default function HistoryPage() {
               <span>Topic</span>
               <span>Quiz</span>
               <span>Type</span>
-              <span>Hints</span>
+              <span>
+                Hints{" "}
+                <span
+                  className="helper-hint inline"
+                  title="Hint usage is the percentage of questions where you requested a hint."
+                >
+                  i
+                </span>
+              </span>
               <span>Score</span>
               <span />
             </div>

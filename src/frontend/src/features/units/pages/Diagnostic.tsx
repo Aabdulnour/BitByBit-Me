@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import QuizRunner from "../components/QuizRunner";
 import { UnitsAPI, type Quiz, type Unit } from "../services/unitsAPI";
 import { useProgress } from "../hooks/useProgress";
 import { createAttempt, rememberLearningLocation } from "../../../lib/studentClient";
 import QuizIntro from "../components/QuizIntro";
+import { classifyPlacement, describePlacement } from "../utils/progress";
 
 export default function DiagnosticPage() {
   const { unitId } = useParams();
@@ -42,6 +43,23 @@ export default function DiagnosticPage() {
   useEffect(() => {
     setShowIntro(true);
   }, [unitId]);
+
+  const renderSummaryDetail = useCallback(
+    (scorePct: number) => {
+      const placement = classifyPlacement(scorePct);
+      const description = describePlacement(placement);
+      return (
+        <div className="diagnostic-summary-extra">
+          <p className="muted small">Placement</p>
+          <h3>{placement || "Placement pending"}</h3>
+          <p className="muted small">
+            {description} This diagnostic simply places you — no need to pass it.
+          </p>
+        </div>
+      );
+    },
+    []
+  );
 
   if (error)
     return (
@@ -97,8 +115,9 @@ export default function DiagnosticPage() {
         title={quiz.title}
         questions={quiz.questions}
         passingScorePct={passThreshold}
-        summaryPrimaryLabel="Continue learning"
+        summaryPrimaryLabel="Back to unit detail"
         summarySecondaryLabel="Retry quiz"
+        renderSummaryDetail={renderSummaryDetail}
         onFinished={async ({ scorePct, answers }) => {
           try {
                 await createAttempt({
