@@ -6,6 +6,7 @@ import { useProgress } from "../hooks/useProgress";
 import { createAttempt, rememberLearningLocation } from "../../../lib/studentClient";
 import QuizIntro from "../components/QuizIntro";
 import { classifyPlacement, describePlacement } from "../utils/progress";
+import FeedbackCallout from "../components/FeedbackCallout";
 
 export default function DiagnosticPage() {
   const { unitId } = useParams();
@@ -13,6 +14,7 @@ export default function DiagnosticPage() {
   const [quiz, setQuiz] = useState<Quiz | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const nav = useNavigate();
   const { markDiagnosticTaken } = useProgress();
 
@@ -42,13 +44,15 @@ export default function DiagnosticPage() {
 
   useEffect(() => {
     setShowIntro(true);
+    setFeedback(null);
   }, [unitId]);
 
-  const renderSummaryDetail = useCallback(
-    (scorePct: number) => {
-      const placement = classifyPlacement(scorePct);
-      const description = describePlacement(placement);
-      return (
+  const renderSummaryDetail = (scorePct: number) => {
+    const placement = classifyPlacement(scorePct);
+    const description = describePlacement(placement);
+    return (
+      <>
+        {feedback && <FeedbackCallout message={feedback} />}
         <div className="diagnostic-summary-extra">
           <p className="muted small">Placement</p>
           <h3>{placement || "Placement pending"}</h3>
@@ -56,10 +60,9 @@ export default function DiagnosticPage() {
             {description} This diagnostic simply places you — no need to pass it.
           </p>
         </div>
-      );
-    },
-    []
-  );
+      </>
+    );
+  };
 
   if (error)
     return (
@@ -120,23 +123,25 @@ export default function DiagnosticPage() {
         renderSummaryDetail={renderSummaryDetail}
         onFinished={async ({ scorePct, answers }) => {
           try {
-                await createAttempt({
-                  quizId: quiz.id,
-                  quizType: "diagnostic",
-                  unitId: unit.id,
-                  sectionId: null,
-                  scorePct,
-                  results: answers.map((a) => ({
-                    questionId: a.questionId,
-                    correct: a.correct,
-                    chosenAnswer: a.chosenAnswer,
-                    timeSec: 0,
-                    usedHint: a.usedHint,
-                  })),
+            const result = await createAttempt({
+              quizId: quiz.id,
+              quizType: "diagnostic",
+              unitId: unit.id,
+              sectionId: null,
+              scorePct,
+              results: answers.map((a) => ({
+                questionId: a.questionId,
+                correct: a.correct,
+                chosenAnswer: a.chosenAnswer,
+                timeSec: 0,
+                usedHint: a.usedHint,
+              })),
             });
             markDiagnosticTaken(unit.id);
+            setFeedback(result?.personalized_feedback ?? null);
           } catch (e) {
             console.error("Failed to record diagnostic attempt", e);
+            setFeedback(null);
           }
         }}
         onExit={(scorePct) => {

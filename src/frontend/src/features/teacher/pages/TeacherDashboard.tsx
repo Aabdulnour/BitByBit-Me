@@ -5,18 +5,28 @@ import {
   type TeacherOverviewSummary,
   type TeacherStudentSummary,
   type TeacherUnitSummary,
+  type DifficultyInsight,
+  type SkillMasterySnapshotEntry,
 } from "../../../lib/teacherClient";
 import { normalizeAttempts } from "../../../lib/attempts";
 import StudentDetailDrawer, {
   type StudentDetailState,
 } from "../components/StudentDetailDrawer";
 
-const initialOverview = { summary: null, students: [], units: [] };
+const initialOverview = {
+  summary: null,
+  students: [],
+  units: [],
+  difficultyInsights: [],
+  skillMasterySnapshot: [],
+};
 
 type OverviewState = {
   summary: TeacherOverviewSummary | null;
   students: TeacherStudentSummary[];
   units: TeacherUnitSummary[];
+  difficultyInsights: DifficultyInsight[];
+  skillMasterySnapshot: SkillMasterySnapshotEntry[];
 };
 
 function formatLastActivity(iso?: string | null) {
@@ -45,6 +55,13 @@ function formatPercent(rate?: number | null, fallback = "—") {
   return `${Math.round(rate * 100)}%`;
 }
 
+function formatSkillLabel(skillId: string) {
+  return skillId
+    .replace(/[_-]/g, " ")
+    .replace(/:/g, " • ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export default function TeacherDashboard() {
   const [overview, setOverview] = useState<OverviewState>(initialOverview);
   const [loading, setLoading] = useState(true);
@@ -63,6 +80,8 @@ export default function TeacherDashboard() {
         summary: data.summary ?? null,
         students: data.students,
         units: data.units,
+        difficultyInsights: data.difficulty_insights ?? [],
+        skillMasterySnapshot: data.skill_mastery_snapshot ?? [],
       });
     } catch (err) {
       console.error("Failed to load teacher overview", err);
@@ -239,6 +258,46 @@ export default function TeacherDashboard() {
           <p className="muted small">Loading class overview…</p>
         </div>
       )}
+
+      {!loading &&
+        !error &&
+        (overview.skillMasterySnapshot.length > 0 ||
+          overview.difficultyInsights.length > 0) && (
+          <div className="teacher-grid">
+            {overview.skillMasterySnapshot.length > 0 && (
+              <div className="card teacher-card">
+                <p className="muted small">Skill signals</p>
+                <h3>Weakest skills right now</h3>
+                <ul className="attention-list">
+                  {overview.skillMasterySnapshot.slice(0, 4).map((skill) => (
+                    <li key={skill.skill_id}>
+                      <strong>{formatSkillLabel(skill.skill_id)}</strong>
+                      <span>
+                        {Math.round((skill.average_mastery ?? 0) * 100)}% mastery
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {overview.difficultyInsights.length > 0 && (
+              <div className="card teacher-card">
+                <p className="muted small">Hardest questions</p>
+                <h3>Where students miss most</h3>
+                <ul className="attention-list">
+                  {overview.difficultyInsights.slice(0, 4).map((item) => (
+                    <li key={item.question_id}>
+                      <strong>{item.question_text}</strong>
+                      <span>
+                        {Math.round((item.difficulty ?? 0) * 100)}% difficulty
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
       {!loading && error && (
         <div className="card state-card state-card-error">

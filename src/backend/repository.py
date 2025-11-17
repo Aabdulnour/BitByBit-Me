@@ -78,6 +78,15 @@ def _deserialize_student_state(data: Dict[str, Any]) -> StudentState:
         key: SkillMastery(**value) if not isinstance(value, SkillMastery) else value
         for key, value in data.get("mastery_by_skill", {}).items()
     }
+    skill_mastery = {
+        key: {
+            "p_mastery": float(value.get("p_mastery", 0.3)),
+            "n_observations": int(value.get("n_observations", 0)),
+            "recent_correct": int(value.get("recent_correct", 0)),
+        }
+        for key, value in data.get("skill_mastery", {}).items()
+        if isinstance(value, dict)
+    }
     return StudentState(
         student_id=data["student_id"],
         name=data.get("name", f"Student {data['student_id']}"),
@@ -85,6 +94,7 @@ def _deserialize_student_state(data: Dict[str, Any]) -> StudentState:
         grade_level=data.get("grade_level", "9"),
         preferred_difficulty=data.get("preferred_difficulty", "medium"),
         mastery_by_skill=mastery,
+        skill_mastery=skill_mastery,
         last_unit_id=data.get("last_unit_id"),
         last_section_id=data.get("last_section_id"),
         last_activity=data.get("last_activity"),
@@ -140,6 +150,7 @@ def create_student(name: str, email: Optional[str] = None) -> StudentState:
         grade_level="9",
         preferred_difficulty="medium",
         mastery_by_skill={},
+        skill_mastery={},
         avatar_url=None,
         avatar_name=None,
     )

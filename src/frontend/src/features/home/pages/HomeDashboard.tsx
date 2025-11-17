@@ -24,6 +24,9 @@ type NextActivity = {
   unitId: string;
   sectionId?: string | null;
   activity: string;
+  reason?: string | null;
+  skillId?: string | null;
+  difficultyTarget?: number | null;
 };
 
 type NextStepSuggestion = {
@@ -83,6 +86,10 @@ export default function HomeDashboard() {
           unitId: data.unit_id,
           sectionId: data.section_id,
           activity: data.activity,
+          reason: data.reason ?? null,
+          skillId: data.skill_id ?? null,
+          difficultyTarget:
+            typeof data.difficulty_target === "number" ? data.difficulty_target : null,
         });
       } else {
         setNextActivity(null);
@@ -488,6 +495,12 @@ export default function HomeDashboard() {
             {recommendedUnit?.title || "Personalized learning"}
           </h3>
           <p className="muted small">{recommendationDescription}</p>
+          {recommendationReason && (
+            <p className="muted tiny helper-text">{recommendationReason}</p>
+          )}
+          {difficultyIntent && (
+            <p className="muted tiny helper-text">{difficultyIntent}</p>
+          )}
         </div>
         <div className="recommendation-actions">
           {recommendationBadge && (
@@ -698,3 +711,11 @@ function describeRecentAttempt(attempt: AttemptRecord, unitTitle: string) {
       return `Quiz in ${unitTitle}`;
   }
 }
+  const recommendationReason = nextActivity?.reason || null;
+  const difficultyIntent = useMemo(() => {
+    const target = nextActivity?.difficultyTarget;
+    if (target == null) return null;
+    if (target < 0.45) return "We will keep things on the easier side for now.";
+    if (target < 0.65) return "We are aiming for medium difficulty next.";
+    return "Expect a more challenging follow-up to stretch this skill.";
+  }, [nextActivity]);

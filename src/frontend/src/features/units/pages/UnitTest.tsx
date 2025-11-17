@@ -4,6 +4,7 @@ import QuizRunner from "../components/QuizRunner";
 import { UnitsAPI, type Quiz, type Unit } from "../services/unitsAPI";
 import { createAttempt, rememberLearningLocation } from "../../../lib/studentClient";
 import QuizIntro from "../components/QuizIntro";
+import FeedbackCallout from "../components/FeedbackCallout";
 
 export default function UnitTestPage() {
   const { unitId } = useParams();
@@ -11,6 +12,7 @@ export default function UnitTestPage() {
   const [quiz, setQuiz] = useState<Quiz | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function UnitTestPage() {
 
   useEffect(() => {
     setShowIntro(true);
+    setFeedback(null);
   }, [unitId]);
 
   if (error)
@@ -92,9 +95,12 @@ export default function UnitTestPage() {
             passingScorePct={passThreshold}
             summaryPrimaryLabel="Back to unit"
             summarySecondaryLabel="Retry quiz"
+            renderSummaryDetail={() =>
+              feedback ? <FeedbackCallout message={feedback} /> : null
+            }
             onFinished={async ({ scorePct, answers }) => {
               try {
-                await createAttempt({
+                const result = await createAttempt({
                   quizId: quiz.id,
                   quizType: "unit_test",
                   unitId: unit.id,
@@ -108,8 +114,10 @@ export default function UnitTestPage() {
                     usedHint: a.usedHint,
                   })),
                 });
+                setFeedback(result?.personalized_feedback ?? null);
               } catch (e) {
                 console.error("Failed to record unit test attempt", e);
+                setFeedback(null);
               }
             }}
             onExit={() => nav(`/units/${unit.id}`)}

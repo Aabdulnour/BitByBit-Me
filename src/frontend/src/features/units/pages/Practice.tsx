@@ -7,6 +7,7 @@ import React, {
 import { useNavigate, useParams } from "react-router-dom";
 import QuestionCard from "../components/QuestionCard";
 import SummaryCard from "../components/SummaryCard";
+import FeedbackCallout from "../components/FeedbackCallout";
 import {
   UnitsAPI,
   type Question,
@@ -49,6 +50,7 @@ export default function PracticePage() {
   const [sessionAnswers, setSessionAnswers] = useState<PracticeAnswer[]>([]);
   const [sessionFinished, setSessionFinished] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
+  const [sessionFeedback, setSessionFeedback] = useState<string | null>(null);
   const [justAnswered, setJustAnswered] = useState<"correct" | "wrong" | null>(
     null
   );
@@ -168,6 +170,7 @@ export default function PracticePage() {
       nav(`/units/${unit?.id ?? ""}`);
       return;
     }
+    setSessionFeedback(null);
     const total = sessionAnswers.length;
     const correct = sessionAnswers.filter((a) => a.correct).length;
     const scorePct = total ? Math.round((correct / total) * 100) : 0;
@@ -182,7 +185,7 @@ export default function PracticePage() {
       return;
     }
     try {
-      await createAttempt({
+      const result = await createAttempt({
         quizId:
           section.practiceQuizId ??
           `practice-${unit.id}-${sectionId || "section"}`,
@@ -192,8 +195,10 @@ export default function PracticePage() {
         scorePct,
         results: sessionAnswers,
       });
+      setSessionFeedback(result?.personalized_feedback ?? null);
     } catch (err) {
       console.error("Could not record practice attempt", err);
+      setSessionFeedback(null);
     }
     rememberLearningLocation({
       unitId: unit.id,
@@ -207,6 +212,7 @@ export default function PracticePage() {
     setSessionAnswers([]);
     setSessionFinished(false);
     setFinalScore(0);
+    setSessionFeedback(null);
     setHintUsed(false);
     setJustAnswered(null);
     void loadQuestion();
@@ -256,6 +262,11 @@ export default function PracticePage() {
           passed={passed}
           primaryLabel="Back to unit"
           secondaryLabel="Practice more"
+          detail={
+            sessionFeedback ? (
+              <FeedbackCallout message={sessionFeedback} />
+            ) : undefined
+          }
           onPrimary={() => nav(`/units/${unit.id}`)}
           onSecondary={handleRestart}
         />

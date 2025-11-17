@@ -15,6 +15,8 @@ type ReviewQuestion = {
   studentAnswer?: string | null;
   correctAnswer?: string | null;
   isCorrect: boolean;
+  difficultyLabel?: string | null;
+  difficultyScore?: number | null;
 };
 
 type ReviewPayload = {
@@ -22,6 +24,7 @@ type ReviewPayload = {
   summary: ReviewSummary;
   quizTitle?: string;
   questions: ReviewQuestion[];
+  personalizedFeedback?: string | null;
 };
 
 function mapApiResponse(raw: any): ReviewPayload {
@@ -30,6 +33,7 @@ function mapApiResponse(raw: any): ReviewPayload {
   return {
     hasAttempt: Boolean(raw?.has_attempt),
     quizTitle: raw?.quiz?.title,
+    personalizedFeedback: raw?.personalized_feedback ?? null,
     summary: {
       total: Number(summary?.total_questions ?? summary?.total ?? questions.length ?? 0),
       correct: Number(summary?.correct ?? 0),
@@ -41,6 +45,11 @@ function mapApiResponse(raw: any): ReviewPayload {
       studentAnswer: question?.student_answer ?? null,
       correctAnswer: question?.correct_answer ?? null,
       isCorrect: Boolean(question?.is_correct),
+      difficultyLabel: question?.difficulty_label ?? null,
+      difficultyScore:
+        typeof question?.estimated_difficulty === "number"
+          ? Number(question.estimated_difficulty)
+          : null,
     })),
   };
 }
@@ -193,6 +202,13 @@ export default function DiagnosticResultsPage() {
         )}
       </div>
 
+      {review.personalizedFeedback && (
+        <div className="card diagnostic-feedback-card">
+          <p className="muted small">Personalized feedback</p>
+          <p style={{ margin: "8px 0 0" }}>{review.personalizedFeedback}</p>
+        </div>
+      )}
+
       <div className="card question-review-card">
         <div className="question-review-head">
           <div>
@@ -203,10 +219,29 @@ export default function DiagnosticResultsPage() {
           </div>
         </div>
         <ul className="question-review-list">
-          {review.questions.map((question) => (
+          {review.questions.map((question) => {
+            const starMap: Record<string, string> = {
+              easy: "★☆☆",
+              medium: "★★☆",
+              hard: "★★★",
+            };
+            const scoreDisplay =
+              typeof question.difficultyScore === "number"
+                ? `${Math.round(question.difficultyScore * 100)}%`
+                : null;
+            return (
             <li key={question.id} className="question-review-row">
               <div>
                 <p className="question-text">{question.text}</p>
+                {question.difficultyLabel && (
+                  <p className="muted tiny helper-text">
+                    Difficulty:{" "}
+                    <strong>
+                      {starMap[question.difficultyLabel] || question.difficultyLabel}
+                    </strong>{" "}
+                    {scoreDisplay && <>({scoreDisplay})</>}
+                  </p>
+                )}
                 <p className="muted small">
                   Your answer: <strong>{question.studentAnswer ?? "—"}</strong>
                 </p>
@@ -222,7 +257,8 @@ export default function DiagnosticResultsPage() {
                 {question.isCorrect ? "Correct" : "Incorrect"}
               </span>
             </li>
-          ))}
+          );
+          })}
           {review.questions.length === 0 && (
             <li className="question-review-row">
               <p className="muted small">No question-level data available for this diagnostic.</p>

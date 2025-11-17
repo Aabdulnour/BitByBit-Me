@@ -1296,6 +1296,12 @@ select.input {
   gap: 12px;
 }
 
+.diagnostic-feedback-card {
+  margin-top: 16px;
+  border: 1px solid #f5d8c3;
+  background: #fef9f5;
+}
+
 .diagnostic-results-summary {
   display: flex;
   justify-content: space-between;

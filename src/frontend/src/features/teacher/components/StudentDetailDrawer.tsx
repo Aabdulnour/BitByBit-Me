@@ -8,6 +8,11 @@ export type StudentDetailData = {
     name: string;
     grade_level?: string;
     preferred_difficulty?: string;
+    email?: string | null;
+    skill_mastery?: Record<
+      string,
+      { p_mastery?: number; n_observations?: number; recent_correct?: number }
+    >;
   };
   unitMastery: { unitId: string; unitName: string; mastery: number }[];
   attempts: AttemptRecord[];
@@ -69,6 +74,13 @@ function formatQuizLabel(quizType?: string) {
   }
 }
 
+function formatSkillLabel(skillId: string) {
+  return skillId
+    .replace(/[_-]/g, " ")
+    .replace(/:/g, " • ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export default function StudentDetailDrawer({
   studentId,
   detail,
@@ -80,6 +92,16 @@ export default function StudentDetailDrawer({
   const contentState = detail || { loading: true, error: null, data: null };
   const unitMastery = contentState.data?.unitMastery ?? [];
   const attemptList = contentState.data?.attempts ?? [];
+  const skillEntries = Object.entries(
+    contentState.data?.student.skill_mastery ?? {}
+  )
+    .map(([skillId, entry]) => ({
+      skillId,
+      mastery: Math.round((entry?.p_mastery ?? 0) * 100),
+      observations: entry?.n_observations ?? 0,
+    }))
+    .sort((a, b) => a.mastery - b.mastery)
+    .slice(0, 6);
   const stats = [
     {
       label: "Overall mastery",
@@ -218,6 +240,33 @@ export default function StudentDetailDrawer({
                         );
                       })}
                     </ul>
+                  </div>
+                  <div className="drawer-section">
+                    <h4>Skill mastery signals</h4>
+                    {skillEntries.length === 0 && (
+                      <p className="muted small">
+                        No skill-level mastery signals yet for this student.
+                      </p>
+                    )}
+                    {skillEntries.length > 0 && (
+                      <ul className="unit-mastery-list">
+                        {skillEntries.map((skill) => (
+                          <li key={skill.skillId}>
+                            <div>
+                              <strong>{formatSkillLabel(skill.skillId)}</strong>
+                              <div className="unit-mastery-meta">
+                                <span className="muted small">
+                                  {skill.mastery}% mastery • {skill.observations} observations
+                                </span>
+                              </div>
+                            </div>
+                            <div className="unit-mastery-bar">
+                              <span style={{ width: `${skill.mastery}%` }} />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="drawer-section">
                     <h4>Recent attempts</h4>

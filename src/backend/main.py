@@ -3,8 +3,9 @@ from __future__ import annotations
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import uuid
+from typing import Dict
 
-from .models import Attempt, AttemptQuestionResult, StudentState
+from .models import Attempt, AttemptQuestionResult, SkillMastery, StudentState
 from .repository import (
     load_units,
     load_unit,
@@ -14,6 +15,7 @@ from .repository import (
     save_student,
     load_attempts,
     append_attempt,
+    get_attempts_for_all_students,
     get_next_activity_for_student,
     compute_teacher_student_summaries,
     compute_teacher_unit_summaries,
@@ -23,6 +25,12 @@ from .repository import (
     get_user_by_email,
 )
 from .recommender import pick_next_question
+from .ml import (
+    update_student_skill_state,
+    generate_personalized_feedback,
+    recommend_next_activity,
+    estimate_question_difficulty,
+)
 
 
 def create_app() -> Flask:
@@ -104,8 +112,15 @@ def create_app() -> Flask:
         if not student:
             student = StudentState(student_id=student_id, name=f"Student {student_id}")
             save_student(student)
+        attempts = load_attempts(student_id)
+        units = load_units()
+        ml_activity = recommend_next_activity(student, attempts, units)
+        if ml_activity:
+            return jsonify(ml_activity)
         activity = get_next_activity_for_student(student_id)
-        return jsonify(activity.to_dict())
+        payload = activity.to_dict()
+        payload["reason"] = payload.get("reason") or "using fallback sequencing"
+        return jsonify(payload)
 
     @app.post("/api/student/<student_id>/state")
     def api_update_student_state(student_id: str):
@@ -198,11 +213,62 @@ def create_app() -> Flask:
             "average_hint_usage": average_hint_usage,
         }
 
+        # Surface hardest questions so teachers can see where students struggle.
+        questions_lookup = load_questions()
+        question_difficulty = estimate_question_difficulty(
+            get_attempts_for_all_students(), questions_lookup
+        )
+        hardest_questions = [
+            {
+                "question_id": qid,
+                "question_text": questions_lookup.get(qid).text
+                if questions_lookup.get(qid)
+                else qid,
+                "difficulty": stats.get("difficulty"),
+                "level": stats.get("level"),
+                "p_correct": stats.get("p_correct"),
+                "n_attempts": stats.get("n_attempts"),
+            }
+            for qid, stats in question_difficulty.items()
+        ]
+        hardest_questions.sort(
+            key=lambda entry: (entry.get("difficulty") or 0.0, entry.get("n_attempts") or 0),
+            reverse=True,
+        )
+        hardest_questions = hardest_questions[:5]
+
+        # Summarize skill mastery across the class.
+        skill_totals: Dict[str, Dict[str, float]] = {}
+        for student in get_all_students():
+            for skill_id, data in (student.skill_mastery or {}).items():
+                entry = skill_totals.setdefault(
+                    skill_id, {"total": 0.0, "count": 0}
+                )
+                entry["total"] += float(data.get("p_mastery", 0.0))
+                entry["count"] += 1
+        skill_mastery_snapshot = [
+            {
+                "skill_id": skill_id,
+                "average_mastery": round(
+                    entry["total"] / entry["count"], 3
+                )
+                if entry["count"]
+                else 0.0,
+                "student_count": entry["count"],
+            }
+            for skill_id, entry in skill_totals.items()
+            if entry["count"]
+        ]
+        skill_mastery_snapshot.sort(key=lambda entry: entry["average_mastery"])
+        skill_mastery_snapshot = skill_mastery_snapshot[:6]
+
         return jsonify(
             {
                 "summary": summary_payload,
                 "students": student_summaries,
                 "units": unit_summaries,
+                "difficulty_insights": hardest_questions,
+                "skill_mastery_snapshot": skill_mastery_snapshot,
             }
         )
 
@@ -254,8 +320,15 @@ def create_app() -> Flask:
             )
 
         attempt = max(attempts, key=lambda a: a.created_at or 0)
+        student = load_student(student_id) or StudentState(
+            student_id=student_id, name=f"Student {student_id}"
+        )
         quiz = load_quiz(diagnostic_quiz_id) if diagnostic_quiz_id else None
         questions_lookup = load_questions()
+        difficulty_lookup = estimate_question_difficulty(
+            get_attempts_for_all_students(), questions_lookup
+        )
+        feedback_text = generate_personalized_feedback(student, attempt)
 
         questions_payload = []
         correct_count = 0
@@ -264,6 +337,7 @@ def create_app() -> Flask:
             is_correct = bool(result.correct)
             if is_correct:
                 correct_count += 1
+            difficulty_entry = difficulty_lookup.get(result.question_id, {})
             questions_payload.append(
                 {
                     "question_id": result.question_id,
@@ -272,6 +346,8 @@ def create_app() -> Flask:
                     "student_answer": result.chosen_answer,
                     "correct_answer": question.correct_answer if question else None,
                     "is_correct": is_correct,
+                    "estimated_difficulty": difficulty_entry.get("difficulty"),
+                    "difficulty_label": difficulty_entry.get("level"),
                 }
             )
 
@@ -303,6 +379,7 @@ def create_app() -> Flask:
                 "quiz": quiz_payload,
                 "summary": summary,
                 "questions": questions_payload,
+                "personalized_feedback": feedback_text,
             }
         )
 
@@ -333,7 +410,40 @@ def create_app() -> Flask:
             return jsonify({"error": f"missing_field_{e}"}), 400
 
         append_attempt(attempt)
-        return jsonify(attempt.to_dict()), 201
+        student = load_student(attempt.student_id)
+        if not student:
+            student = StudentState(
+                student_id=attempt.student_id,
+                name=f"Student {attempt.student_id}",
+            )
+        updated_skill_state = update_student_skill_state(
+            attempt.student_id,
+            [attempt],
+            student.skill_mastery,
+        )
+        student.skill_mastery = updated_skill_state
+        mastery_by_skill = {}
+        for skill_id, data in updated_skill_state.items():
+            total = int(data.get("n_observations", 0))
+            correct_estimate = int(round(data.get("p_mastery", 0.0) * total))
+            mastery_by_skill[skill_id] = SkillMastery(
+                skill_id=skill_id,
+                correct=correct_estimate,
+                total=total,
+            )
+        student.mastery_by_skill = mastery_by_skill
+        if attempt.unit_id:
+            student.last_unit_id = attempt.unit_id
+        if attempt.section_id:
+            student.last_section_id = attempt.section_id
+        student.last_activity = attempt.quiz_type
+        save_student(student)
+
+        feedback_text = generate_personalized_feedback(student, attempt)
+        response_payload = attempt.to_dict()
+        response_payload["personalized_feedback"] = feedback_text
+        response_payload["skill_mastery"] = student.skill_mastery
+        return jsonify(response_payload), 201
 
     @app.post("/api/next-question")
     def api_next_question():

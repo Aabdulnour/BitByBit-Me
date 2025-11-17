@@ -26,10 +26,27 @@ export type TeacherOverviewSummary = {
   average_hint_usage: number | null;
 };
 
+export type DifficultyInsight = {
+  question_id: string;
+  question_text: string;
+  difficulty: number;
+  level?: string;
+  p_correct?: number;
+  n_attempts?: number;
+};
+
+export type SkillMasterySnapshotEntry = {
+  skill_id: string;
+  average_mastery: number;
+  student_count: number;
+};
+
 export type TeacherOverviewResponse = {
   summary?: TeacherOverviewSummary | null;
   students: TeacherStudentSummary[];
   units: TeacherUnitSummary[];
+  difficulty_insights?: DifficultyInsight[];
+  skill_mastery_snapshot?: SkillMasterySnapshotEntry[];
 };
 
 export type TeacherUnitMasteryEntry = {
@@ -44,6 +61,11 @@ export type TeacherStudentDetailResponse = {
     name: string;
     grade_level?: string;
     preferred_difficulty?: string;
+    email?: string;
+    skill_mastery?: Record<
+      string,
+      { p_mastery?: number; n_observations?: number; recent_correct?: number }
+    >;
   };
   attempts: any[];
   unit_mastery: TeacherUnitMasteryEntry[];

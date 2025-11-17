@@ -66,6 +66,7 @@ class StudentState:
     grade_level: str = "9"
     preferred_difficulty: Difficulty = "medium"
     mastery_by_skill: Dict[str, SkillMastery] = field(default_factory=dict)
+    skill_mastery: Dict[str, Dict[str, float]] = field(default_factory=dict)
     last_unit_id: Optional[str] = None
     last_section_id: Optional[str] = None
     last_activity: Optional[str] = None
@@ -80,6 +81,7 @@ class StudentState:
             "grade_level": self.grade_level,
             "preferred_difficulty": self.preferred_difficulty,
             "mastery_by_skill": {k: v.to_dict() for k, v in self.mastery_by_skill.items()},
+            "skill_mastery": self.skill_mastery,
             "last_unit_id": self.last_unit_id,
             "last_section_id": self.last_section_id,
             "last_activity": self.last_activity,
@@ -142,13 +144,26 @@ class NextActivity:
     unit_id: str
     section_id: Optional[str]
     activity: ActivityType
+    reason: Optional[str] = None
+    quiz_id: Optional[str] = None
+    skill_id: Optional[str] = None
+    difficulty_target: Optional[float] = None
 
     def to_dict(self) -> Dict:
-        return {
+        payload = {
             "unit_id": self.unit_id,
             "section_id": self.section_id,
             "activity": self.activity,
         }
+        if self.reason:
+            payload["reason"] = self.reason
+        if self.quiz_id:
+            payload["quiz_id"] = self.quiz_id
+        if self.skill_id:
+            payload["skill_id"] = self.skill_id
+        if self.difficulty_target is not None:
+            payload["difficulty_target"] = self.difficulty_target
+        return payload
 
 
 @dataclass

@@ -4,6 +4,7 @@ import QuizRunner from "../components/QuizRunner";
 import { UnitsAPI, type Quiz, type Unit } from "../services/unitsAPI";
 import { createAttempt, rememberLearningLocation } from "../../../lib/studentClient";
 import QuizIntro from "../components/QuizIntro";
+import FeedbackCallout from "../components/FeedbackCallout";
 
 export default function MiniQuizPage() {
   const { unitId, sectionId } = useParams();
@@ -13,6 +14,7 @@ export default function MiniQuizPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +61,7 @@ export default function MiniQuizPage() {
 
   useEffect(() => {
     setShowIntro(true);
+    setFeedback(null);
   }, [unitId, sectionId]);
 
   if (loading) {
@@ -120,9 +123,12 @@ export default function MiniQuizPage() {
             questions={quiz.questions}
             summaryPrimaryLabel="Back to unit"
             summarySecondaryLabel="Retry quiz"
+            renderSummaryDetail={() =>
+              feedback ? <FeedbackCallout message={feedback} /> : null
+            }
             onFinished={async ({ scorePct, answers }) => {
               try {
-                await createAttempt({
+                const result = await createAttempt({
                   quizId: quiz.id,
                   quizType: "mini_quiz",
                   unitId: unit.id,
@@ -136,8 +142,10 @@ export default function MiniQuizPage() {
                     usedHint: a.usedHint,
                   })),
                 });
+                setFeedback(result?.personalized_feedback ?? null);
               } catch (err) {
                 console.error("Could not record mini quiz attempt", err);
+                setFeedback(null);
               }
             }}
             onExit={() => nav(`/units/${unit.id}`)}
