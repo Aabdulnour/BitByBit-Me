@@ -243,6 +243,16 @@ export default function HomeDashboard() {
         return "Practice";
     }
   }, [nextActivity, nextActivityLoading]);
+    
+  const recommendationReason = nextActivity?.reason || null;
+
+  const difficultyIntent = useMemo(() => {
+    const target = nextActivity?.difficultyTarget;
+    if (target == null) return null;
+    if (target < 0.45) return "We will keep things on the easier side for now.";
+    if (target < 0.65) return "We are aiming for medium difficulty next.";
+    return "Expect a more challenging follow-up to stretch this skill.";
+  }, [nextActivity]);
 
   const recommendationRoutes = useMemo(() => {
     if (!nextActivity || !recommendedUnit) {
@@ -711,11 +721,4 @@ function describeRecentAttempt(attempt: AttemptRecord, unitTitle: string) {
       return `Quiz in ${unitTitle}`;
   }
 }
-  const recommendationReason = nextActivity?.reason || null;
-  const difficultyIntent = useMemo(() => {
-    const target = nextActivity?.difficultyTarget;
-    if (target == null) return null;
-    if (target < 0.45) return "We will keep things on the easier side for now.";
-    if (target < 0.65) return "We are aiming for medium difficulty next.";
-    return "Expect a more challenging follow-up to stretch this skill.";
-  }, [nextActivity]);
+

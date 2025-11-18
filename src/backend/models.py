@@ -53,9 +53,7 @@ class SkillMastery:
         return (self.correct / self.total * 100.0) if self.total > 0 else 0.0
 
     def to_dict(self) -> Dict:
-        data = asdict(self)
-        data["pct"] = self.pct
-        return data
+        return asdict(self)
 
 
 @dataclass

@@ -5,10 +5,63 @@
     "email": null,
     "grade_level": "9",
     "preferred_difficulty": "medium",
-    "mastery_by_skill": {},
+    "mastery_by_skill": {
+      "distribute_combine": {
+        "skill_id": "distribute_combine",
+        "correct": 0,
+        "total": 1
+      },
+      "solve_linear_one_step": {
+        "skill_id": "solve_linear_one_step",
+        "correct": 2,
+        "total": 3
+      },
+      "solve_linear_two_step": {
+        "skill_id": "solve_linear_two_step",
+        "correct": 0,
+        "total": 1
+      },
+      "linear_modeling": {
+        "skill_id": "linear_modeling",
+        "correct": 0,
+        "total": 1
+      },
+      "solve_linear_multi_step": {
+        "skill_id": "solve_linear_multi_step",
+        "correct": 1,
+        "total": 2
+      }
+    },
+    "skill_mastery": {
+      "distribute_combine": {
+        "p_mastery": 0.475,
+        "n_observations": 1,
+        "recent_correct": 1
+      },
+      "solve_linear_one_step": {
+        "p_mastery": 0.5456,
+        "n_observations": 3,
+        "recent_correct": 0
+      },
+      "solve_linear_two_step": {
+        "p_mastery": 0.475,
+        "n_observations": 1,
+        "recent_correct": 1
+      },
+      "linear_modeling": {
+        "p_mastery": 0.475,
+        "n_observations": 1,
+        "recent_correct": 1
+      },
+      "solve_linear_multi_step": {
+        "p_mastery": 0.4275,
+        "n_observations": 2,
+        "recent_correct": 0
+      }
+    },
     "last_unit_id": "algebra-1",
-    "last_section_id": null,
-    "last_activity": "unit_test",
+    "last_section_id": "1.1",
+    "last_activity": "mini_quiz",
     "avatar_url": "https://models.readyplayer.me/691a4ee21aa3af821ad7e2c7.glb",
     "avatar_name": "Debug avatar"
   }

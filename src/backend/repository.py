@@ -50,6 +50,27 @@ ATTEMPTS_PATH = DATA_DIR / "attempts.json"
 MASTERY_QUIZ_TYPES = {"mini_quiz", "unit_test"}
 
 
+def _coerce_skill_mastery(skill_id: str, raw_value: Any) -> SkillMastery:
+    """
+    Normalize persisted skill mastery rows so legacy payloads (with pct) and current
+    dicts consistently hydrate SkillMastery objects.
+    """
+
+    if isinstance(raw_value, SkillMastery):
+        return raw_value
+    if not isinstance(raw_value, dict):
+        return SkillMastery(skill_id=skill_id)
+
+    normalized = dict(raw_value)
+    normalized.pop("pct", None)  # legacy serialized key
+
+    return SkillMastery(
+        skill_id=str(normalized.get("skill_id") or skill_id),
+        correct=int(normalized.get("correct", 0) or 0),
+        total=int(normalized.get("total", 0) or 0),
+    )
+
+
 def load_units() -> List[Unit]:
     raw = _load_json(UNITS_PATH, [])
     return [Unit(**u) for u in raw]
@@ -75,7 +96,7 @@ def load_quiz(quiz_id: str) -> Optional[Quiz]:
 
 def _deserialize_student_state(data: Dict[str, Any]) -> StudentState:
     mastery = {
-        key: SkillMastery(**value) if not isinstance(value, SkillMastery) else value
+        key: _coerce_skill_mastery(key, value)
         for key, value in data.get("mastery_by_skill", {}).items()
     }
     skill_mastery = {

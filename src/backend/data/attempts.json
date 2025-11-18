@@ -1278,5 +1278,97 @@
         "used_hint": false
       }
     ]
+  },
+  {
+    "id": "45fd4863-29d4-42ca-9810-e76df266daec",
+    "student_id": "student-1",
+    "quiz_id": "unit-alg-1",
+    "quiz_type": "unit_test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 100.0,
+    "created_at": 1763428770.266596,
+    "results": [
+      {
+        "question_id": "q13",
+        "correct": true,
+        "chosen_answer": "2x + 6",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q14",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q15",
+        "correct": true,
+        "chosen_answer": "4",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q16",
+        "correct": true,
+        "chosen_answer": "$5 per hour job with $12 bonus",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "9c5c94e6-eb07-4af8-a8d2-ca72202c8cfb",
+    "student_id": "student-1",
+    "quiz_id": "practice-alg-1-1",
+    "quiz_type": "practice",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 100.0,
+    "created_at": 1763429199.224382,
+    "results": [
+      {
+        "question_id": "q3",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q4",
+        "correct": true,
+        "chosen_answer": "16",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "5cf6a5b2-72c7-490c-b3d8-ea864d3062af",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-1",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 0.0,
+    "created_at": 1763429248.096083,
+    "results": [
+      {
+        "question_id": "q3",
+        "correct": false,
+        "chosen_answer": "False",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q4",
+        "correct": false,
+        "chosen_answer": "-16",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
   }
 ]
