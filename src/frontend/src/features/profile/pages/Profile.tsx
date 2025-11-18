@@ -691,11 +691,11 @@ export default function ProfilePage() {
               </p>
             )}
           </div>
-          <div className="profile-header-info">
-            <p className="muted small">Student profile</p>
-            <h2 style={{ margin: "0 0 4px" }}>
-              {student.name || "Unknown student"}
-            </h2>
+        <div className="profile-header-info">
+          <p className="muted small">Student profile</p>
+          <h2 className="u-mt-0 u-mb-4">
+            {student.name || "Unknown student"}
+          </h2>
             <p className="muted small">{deriveEmail(student.name)}</p>
             <div className="profile-mastery-highlight">
               <span className="profile-master-value">
@@ -739,7 +739,7 @@ export default function ProfilePage() {
       <div className="card profile-highlight-card">
         <div>
           <p className="muted small">Next milestone</p>
-          <h3 style={{ margin: "6px 0" }}>{nextMilestone.title}</h3>
+          <h3 className="u-mt-6 u-mb-6">{nextMilestone.title}</h3>
           <p className="muted small">{nextMilestone.subtitle}</p>
         </div>
         <button className="btn primary" onClick={() => nav(nextMilestone.cta)}>
@@ -751,7 +751,7 @@ export default function ProfilePage() {
         <div className="focus-card-head">
           <div>
             <p className="muted small">Focus areas 🎯</p>
-            <h3 style={{ margin: "4px 0" }}>Where hints spike</h3>
+            <h3 className="u-my-4">Where hints spike</h3>
           </div>
         </div>
         {focusAreas.length === 0 ? (
@@ -816,12 +816,14 @@ export default function ProfilePage() {
                     {unit.questions} questions
                   </span>
                 </div>
-                <div className="progress-bar">
-                  <div
-                    className="progress-bar-fill"
-                    style={{ width: `${unit.avg}%` }}
-                  />
-                </div>
+                <progress
+                  className="progress-bar"
+                  max={100}
+                  value={unit.avg}
+                  aria-valuenow={unit.avg}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
                 <div className="topic-meta">
                   <span className="muted small">{unit.avg}%</span>
                   {unit.placement && (
@@ -863,7 +865,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="card avatar-settings-card">
-        <h2 style={{ marginTop: 0 }}>Avatar and profile settings</h2>
+        <h2 className="u-mt-0">Avatar and profile settings</h2>
         <div className="avatar-preview-panel">
           {showAvatarImage ? (
             <img
@@ -968,17 +970,17 @@ export default function ProfilePage() {
           <div className="avatar-editor-modal">
             <div className="avatar-editor-header">
               <div>
-                <h3 style={{ margin: 0 }}>Avatar editor</h3>
-                <p className="muted small" style={{ margin: 0 }}>
+                <h3 className="u-m-0">Avatar editor</h3>
+                <p className="muted small u-m-0">
                   Powered by Ready Player Me.
                 </p>
               </div>
             </div>
-            <p className="muted tiny helper-text" style={{ margin: "0 0 4px" }}>
+            <p className="muted tiny helper-text u-mt-0 u-mb-4">
               Use this editor to design your avatar. When you're done, copy the link and paste it into the Avatar URL field — or try <strong>Save avatar</strong> below to sync automatically.
             </p>
             {avatarError && (
-              <p className="error-text" style={{ margin: "0 0 4px" }}>
+              <p className="error-text u-mt-0 u-mb-4">
                 {avatarError}
               </p>
             )}

@@ -182,7 +182,7 @@ export default function HistoryPage() {
 
       {attempts.length === 0 ? (
         <div className="card empty-card history-empty-card">
-          <p style={{ marginBottom: 8 }}>
+          <p className="u-mb-8">
             No history yet. Start by taking your first diagnostic.
           </p>
           {firstUnit ? (

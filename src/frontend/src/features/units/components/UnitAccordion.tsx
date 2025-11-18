@@ -33,7 +33,7 @@ export default function UnitAccordion({ unit }: { unit: Unit }) {
             <div
               key={s.id}
               className={`row ${locked ? 'locked' : ''}`}
-              aria-disabled={locked ? 'true' : 'false'}
+              aria-disabled={locked}
               tabIndex={locked ? -1 : 0}
               role="button"
               onKeyDown={(e) => {
@@ -50,14 +50,14 @@ export default function UnitAccordion({ unit }: { unit: Unit }) {
         })}
       </div>
 
-      <div className={`cta ${passed ? '' : 'disabled'}`} aria-disabled={passed ? 'false' : 'true'}>
+      <div className={`cta ${passed ? '' : 'disabled'}`} aria-disabled={!passed}>
         <div>
           <strong>Comprehensive Unit Test</strong>
           <p className="muted">Test your knowledge of all topics in this unit</p>
         </div>
         {passed
           ? <Link to={`/units/${unit.id}/test`} className="btn orange" aria-label="Start Unit Quiz">Start Unit Quiz</Link>
-          : <button className="btn orange" disabled aria-disabled="true" aria-label="Diagnostic required">Start Unit Quiz</button>}
+          : <button className="btn orange" disabled aria-disabled={true} aria-label="Diagnostic required">Start Unit Quiz</button>}
       </div>
     </div>
   );

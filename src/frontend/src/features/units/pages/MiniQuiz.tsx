@@ -106,7 +106,7 @@ export default function MiniQuizPage() {
             </button>
             <div>
               <p className="muted small">{unit.title}</p>
-              <h2 style={{ margin: 0 }}>{heading}</h2>
+              <h2 className="u-m-0">{heading}</h2>
               {cleanedTitle && (
                 <p className="muted small">{cleanedTitle}</p>
               )}

@@ -24,6 +24,16 @@ type Props = {
   attempts?: AttemptRecord[];
 };
 
+const CHART_MARGIN = {
+  top: 24,
+  right: 24,
+  bottom: 48,
+  left: 56,
+} as const;
+const CHART_HEIGHT = 260;
+const TOOLTIP_WIDTH = 160;
+const TOOLTIP_HEIGHT = 74;
+
 function prettifyType(type?: string) {
   if (!type) return "Unknown type";
   switch (type) {
@@ -83,8 +93,8 @@ export default function HistoryChart({ attempts = [] }: Props) {
     const sorted = [...dataset].sort(
       (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
     );
-    const height = 260;
-    const margin = { top: 24, right: 24, bottom: 48, left: 56 };
+    const height = CHART_HEIGHT;
+    const margin = CHART_MARGIN;
     const innerWidth = Math.max(1, width - margin.left - margin.right);
     const innerHeight = Math.max(1, height - margin.top - margin.bottom);
     const step =
@@ -106,10 +116,24 @@ export default function HistoryChart({ attempts = [] }: Props) {
       .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
   }, [filteredAttempts, width]);
 
-  const height = 260;
-  const margin = { top: 24, right: 24, bottom: 48, left: 56 };
+  const height = CHART_HEIGHT;
+  const margin = CHART_MARGIN;
   const yTicks = [0, 25, 50, 75, 100];
   const isRangeEmpty = points.length === 0;
+  const tooltipPoint =
+    hoverIndex != null && points[hoverIndex] ? points[hoverIndex] : null;
+  const tooltipPosition = tooltipPoint
+    ? {
+        x: Math.min(
+          Math.max(tooltipPoint.x - TOOLTIP_WIDTH / 2, margin.left),
+          width - margin.right - TOOLTIP_WIDTH
+        ),
+        y: Math.min(
+          Math.max(tooltipPoint.y - TOOLTIP_HEIGHT - 12, margin.top),
+          height - margin.bottom - TOOLTIP_HEIGHT
+        ),
+      }
+    : null;
 
   return (
     <div className="history-chart-wrapper">
@@ -236,22 +260,24 @@ export default function HistoryChart({ attempts = [] }: Props) {
         >
           Score (%)
         </text>
-      </svg>
-          {hoverIndex != null && points[hoverIndex] && (
-            <div
-              className="chart-tooltip"
-              style={{
-                left: `${points[hoverIndex].x}px`,
-                top: `${points[hoverIndex].y - 40}px`,
-              }}
-            >
-              <strong>{points[hoverIndex].pct}%</strong>
-              <span>{formatFull(points[hoverIndex].date)}</span>
+        {tooltipPoint && tooltipPosition && (
+          <foreignObject
+            x={tooltipPosition.x}
+            y={tooltipPosition.y}
+            width={TOOLTIP_WIDTH}
+            height={TOOLTIP_HEIGHT}
+            pointerEvents="none"
+          >
+            <div className="chart-tooltip">
+              <strong>{tooltipPoint.pct}%</strong>
+              <span>{formatFull(tooltipPoint.date)}</span>
               <span className="muted small">
-                {prettifyType(points[hoverIndex].quizType)}
+                {prettifyType(tooltipPoint.quizType)}
               </span>
             </div>
-          )}
+          </foreignObject>
+        )}
+      </svg>
         </div>
       )}
     </div>

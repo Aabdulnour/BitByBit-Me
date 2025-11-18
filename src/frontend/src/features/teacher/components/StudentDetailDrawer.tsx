@@ -234,7 +234,14 @@ export default function StudentDetailDrawer({
                               </div>
                             </div>
                             <div className="unit-mastery-bar">
-                              <span style={{ width: `${unit.mastery}%` }} />
+                              <progress
+                                className="progress-bar progress-bar-compact"
+                                max={100}
+                                value={unit.mastery}
+                                aria-valuenow={unit.mastery}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                              />
                             </div>
                           </li>
                         );
@@ -261,7 +268,14 @@ export default function StudentDetailDrawer({
                               </div>
                             </div>
                             <div className="unit-mastery-bar">
-                              <span style={{ width: `${skill.mastery}%` }} />
+                              <progress
+                                className="progress-bar progress-bar-compact"
+                                max={100}
+                                value={skill.mastery}
+                                aria-valuenow={skill.mastery}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                              />
                             </div>
                           </li>
                         ))}

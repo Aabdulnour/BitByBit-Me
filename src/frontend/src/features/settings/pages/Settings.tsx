@@ -98,7 +98,7 @@ export default function SettingsPage() {
   return (
     <div className="page settings-page">
       <div className="card settings-card">
-        <h1 style={{ marginTop: 0 }}>Settings</h1>
+        <h1 className="u-mt-0">Settings</h1>
         {isTeacher && (
           <section className="settings-section">
             <h3>View mode</h3>

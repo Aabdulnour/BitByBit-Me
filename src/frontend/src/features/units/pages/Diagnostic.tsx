@@ -107,7 +107,7 @@ export default function DiagnosticPage() {
         </button>
         <div>
           <p className="muted small">{unit.title}</p>
-          <h2 style={{ margin: 0 }}>{quiz.title}</h2>
+          <h2 className="u-m-0">{quiz.title}</h2>
           <p className="muted small">Use this to set your placement.</p>
         </div>
         <button className="btn secondary" onClick={() => nav(`/units/${unit.id}`)}>

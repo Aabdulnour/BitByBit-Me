@@ -51,7 +51,7 @@ export default function AttemptDetailModal({
               {unitTitle}
               {sectionTitle ? ` • ${sectionTitle}` : ""}
             </p>
-            <h2 style={{ margin: "4px 0" }}>{quizTitle}</h2>
+            <h2 className="u-my-4">{quizTitle}</h2>
             <p className="muted small">
               {quizTypeLabel} • {dateLabel}
             </p>

@@ -2,16 +2,40 @@ import React, { useState } from "react";
 import type { Question } from "../services/unitsAPI";
 import HintModal from "./HintModal";
 
+type Props = {
+  q: Question;
+  onSubmit: (val: string) => void;
+  onHintUsed?: () => void;
+  disabledOptions?: boolean;
+  selectedAnswer?: string | null;
+  submittingChoice?: string | null;
+};
+
 export default function QuestionCard({
   q,
   onSubmit,
   onHintUsed,
-}: {
-  q: Question;
-  onSubmit: (val: string) => void;
-  onHintUsed?: () => void;
-}) {
+  disabledOptions = false,
+  selectedAnswer = null,
+  submittingChoice = null,
+}: Props) {
   const [hintOpen, setHintOpen] = useState(false);
+
+  const renderOptionButton = (label: string) => {
+    const isSelected = selectedAnswer === label;
+    const isSubmitting = submittingChoice === label;
+    return (
+      <button
+        key={label}
+        className={`btn option${isSelected ? " selected" : ""}`}
+        onClick={() => onSubmit(label)}
+        disabled={disabledOptions}
+        aria-pressed={isSelected}
+      >
+        {isSubmitting ? "Submitting…" : label}
+      </button>
+    );
+  };
 
   return (
     <div className="card q-card">
@@ -19,26 +43,14 @@ export default function QuestionCard({
 
       {q.type === "mcq" && (
         <div className="options">
-          {q.options?.map((opt) => (
-            <button
-              key={opt}
-              className="btn option"
-              onClick={() => onSubmit(opt)}
-            >
-              {opt}
-            </button>
-          ))}
+          {q.options?.map((opt) => renderOptionButton(opt))}
         </div>
       )}
 
       {q.type === "boolean" && (
         <div className="options">
-          <button className="btn option" onClick={() => onSubmit("True")}>
-            True
-          </button>
-          <button className="btn option" onClick={() => onSubmit("False")}>
-            False
-          </button>
+          {renderOptionButton("True")}
+          {renderOptionButton("False")}
         </div>
       )}
 

@@ -415,7 +415,7 @@ export default function HomeDashboard() {
         <div className="card hero home-hero home-hero-loading">
           <div className="home-hero-text">
             <p className="muted small">Loading your dashboard…</p>
-            <h2 style={{ margin: "8px 0" }}>Hang tight</h2>
+            <h2 className="u-my-8">Hang tight</h2>
             <p className="muted small">
               We are fetching your latest attempts and recommendations.
             </p>
@@ -446,7 +446,7 @@ export default function HomeDashboard() {
       <div className="card hero home-hero home-hero-balanced">
         <div className="home-hero-copy">
           <p className="muted small">Welcome back</p>
-          <h1 style={{ marginBottom: 8 }}>{studentName} 👋</h1>
+          <h1 className="u-mb-8">{studentName} 👋</h1>
           <p>
             Keep up the great work. You are making solid progress in Grade 9
             math.
@@ -501,7 +501,7 @@ export default function HomeDashboard() {
       <div className="card recommendation-card">
         <div>
           <p className="muted small">Recommended next step 🎯</p>
-          <h3 style={{ margin: "4px 0 6px" }}>
+          <h3 className="u-mt-4 u-mb-6">
             {recommendedUnit?.title || "Personalized learning"}
           </h3>
           <p className="muted small">{recommendationDescription}</p>
@@ -545,7 +545,7 @@ export default function HomeDashboard() {
         <div className="card suggestion-card">
           <div>
             <p className="muted small">Suggested next step</p>
-            <h3 style={{ margin: "4px 0" }}>Keep your momentum</h3>
+            <h3 className="u-my-4">Keep your momentum</h3>
             <p className="muted small">{nextStepSuggestion.description}</p>
           </div>
           <div className="suggestion-actions">
@@ -572,7 +572,7 @@ export default function HomeDashboard() {
           <div className="card-head">
             <div>
               <p className="muted small">Recent activity</p>
-              <h3 style={{ margin: "4px 0" }}>Last three attempts</h3>
+              <h3 className="u-my-4">Last three attempts</h3>
             </div>
           </div>
           {recentAttempts.length === 0 ? (
@@ -661,12 +661,14 @@ export default function HomeDashboard() {
                     <strong>{t.title}</strong>
                     <span className="muted small">{t.avg}%</span>
                   </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-bar-fill"
-                      style={{ width: `${t.avg}%` }}
-                    />
-                  </div>
+                  <progress
+                    className="progress-bar"
+                    max={100}
+                    value={t.avg}
+                    aria-valuenow={t.avg}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  />
                 </div>
               ))}
             </div>
@@ -721,4 +723,3 @@ function describeRecentAttempt(attempt: AttemptRecord, unitTitle: string) {
       return `Quiz in ${unitTitle}`;
   }
 }
-

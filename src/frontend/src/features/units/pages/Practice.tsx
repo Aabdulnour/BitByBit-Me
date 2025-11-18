@@ -27,13 +27,23 @@ type PracticeAnswer = {
   usedHint: boolean;
 };
 
-function mapQuestion(raw: any): Question {
+type PracticeQuestion = Question & {
+  explanation?: string | null;
+};
+
+function mapQuestion(raw: any): PracticeQuestion {
   return {
     id: String(raw.id),
     type: raw.type === "boolean" ? "boolean" : "mcq",
     prompt: raw.text ?? raw.prompt ?? "Untitled question",
     options: raw.options,
     answer: raw.correct_answer ?? raw.answer,
+    explanation:
+      raw.explanation ??
+      raw.answer_explanation ??
+      raw.rationale ??
+      raw.reason ??
+      null,
   };
 }
 
@@ -44,7 +54,7 @@ export default function PracticePage() {
   const [section, setSection] = useState<UnitSection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingMeta, setLoadingMeta] = useState(true);
-  const [question, setQuestion] = useState<Question | null>(null);
+  const [question, setQuestion] = useState<PracticeQuestion | null>(null);
   const [questionError, setQuestionError] = useState<string | null>(null);
   const [loadingQuestion, setLoadingQuestion] = useState(false);
   const [sessionAnswers, setSessionAnswers] = useState<PracticeAnswer[]>([]);
@@ -55,7 +65,10 @@ export default function PracticePage() {
     null
   );
   const [hintUsed, setHintUsed] = useState(false);
-  const [answering, setAnswering] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [submissionExplanation, setSubmissionExplanation] = useState<string | null>(null);
+  const [nextQuestionLoading, setNextQuestionLoading] = useState(false);
 
   const accuracy = useMemo(() => {
     if (sessionAnswers.length === 0) return 0;
@@ -70,8 +83,16 @@ export default function PracticePage() {
     return window.confirm("End this practice session and save your progress?");
   }, [sessionAnswers.length]);
 
+  const resetQuestionInteraction = useCallback(() => {
+    setSelectedAnswer(null);
+    setHasSubmitted(false);
+    setSubmissionExplanation(null);
+    setJustAnswered(null);
+  }, []);
+
   const loadQuestion = useCallback(async () => {
     if (!unitId) return;
+    resetQuestionInteraction();
     setQuestionError(null);
     setLoadingQuestion(true);
     try {
@@ -92,7 +113,7 @@ export default function PracticePage() {
     } finally {
       setLoadingQuestion(false);
     }
-  }, [unitId, sectionId]);
+  }, [unitId, sectionId, resetQuestionInteraction]);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,10 +156,21 @@ export default function PracticePage() {
     };
   }, [unitId, sectionId, loadQuestion]);
 
+  const deriveExplanation = useCallback(
+    (q: PracticeQuestion): string => {
+      const rawExplanation =
+        (typeof q.explanation === "string" && q.explanation.trim()) || "";
+      if (rawExplanation) return rawExplanation;
+      return `The correct answer is ${q.answer}.`;
+    },
+    []
+  );
+
   const handleAnswer = (choice: string) => {
-    if (!question || answering) return;
+    if (!question || hasSubmitted || nextQuestionLoading) return;
     const normalizedChoice = String(choice).trim();
     const isCorrect = normalizedChoice === String(question.answer).trim();
+    setSelectedAnswer(choice);
     setJustAnswered(isCorrect ? "correct" : "wrong");
     setSessionAnswers((prev) => [
       ...prev,
@@ -149,19 +181,20 @@ export default function PracticePage() {
         usedHint: hintUsed,
       },
     ]);
-    setAnswering(true);
-    setTimeout(() => {
-      void loadQuestion().finally(() => {
-        setAnswering(false);
-        setJustAnswered(null);
-      });
-    }, 320);
+    setSubmissionExplanation(deriveExplanation(question));
+    setHasSubmitted(true);
   };
 
   const handleSkip = () => {
-    setJustAnswered(null);
     setHintUsed(false);
     void loadQuestion();
+  };
+
+  const handleNextQuestion = async () => {
+    if (nextQuestionLoading) return;
+    setNextQuestionLoading(true);
+    await loadQuestion();
+    setNextQuestionLoading(false);
   };
 
   const handleEndSession = async () => {
@@ -214,7 +247,6 @@ export default function PracticePage() {
     setFinalScore(0);
     setSessionFeedback(null);
     setHintUsed(false);
-    setJustAnswered(null);
     void loadQuestion();
   };
 
@@ -249,7 +281,7 @@ export default function PracticePage() {
           </button>
           <div>
             <p className="muted small">{unit.title}</p>
-            <h2 style={{ margin: 0 }}>Practice summary</h2>
+            <h2 className="u-m-0">Practice summary</h2>
             <p className="muted small">{section.title}</p>
           </div>
           <button className="btn secondary" onClick={() => nav(`/units/${unit.id}`)}>
@@ -288,7 +320,7 @@ export default function PracticePage() {
           </button>
           <div>
             <p className="muted small">Adaptive practice session</p>
-            <h2 style={{ margin: "2px 0" }}>{section.title}</h2>
+            <h2 className="u-mt-2 u-mb-2">{section.title}</h2>
             <p className="muted small">
               {unit.title} • {answeredCount}{" "}
               {answeredCount === 1 ? "question answered" : "questions answered"}
@@ -331,7 +363,7 @@ export default function PracticePage() {
         </div>
 
         <div className="practice-status">
-          {justAnswered && (
+          {hasSubmitted && justAnswered && (
             <span className={`pill ${justAnswered}`}>
               {justAnswered === "correct" ? "Correct" : "Try again"}
             </span>
@@ -346,10 +378,38 @@ export default function PracticePage() {
             q={question}
             onSubmit={handleAnswer}
             onHintUsed={() => setHintUsed(true)}
+            disabledOptions={
+              hasSubmitted || nextQuestionLoading || loadingQuestion
+            }
+            selectedAnswer={selectedAnswer}
           />
         ) : (
           <div className="empty small">
             We could not load a question right now. Try again in a moment.
+          </div>
+        )}
+
+        {question && hasSubmitted && (
+          <div className="practice-feedback">
+            <div
+              className={`practice-feedback-status ${
+                justAnswered === "correct" ? "success" : "error"
+              }`}
+            >
+              {justAnswered === "correct" ? "Correct" : "Incorrect"}
+            </div>
+            {submissionExplanation && (
+              <p className="muted small">{submissionExplanation}</p>
+            )}
+            <button
+              className="btn primary"
+              onClick={handleNextQuestion}
+              disabled={nextQuestionLoading || loadingQuestion}
+            >
+              {nextQuestionLoading || loadingQuestion
+                ? "Loading next question…"
+                : "Next question"}
+            </button>
           </div>
         )}
       </div>

@@ -187,8 +187,8 @@ export default function UnitDetailPage() {
       <div className="card unit-hero-card">
         <div>
           <p className="muted small">Unit</p>
-          <h1 style={{ margin: "4px 0 8px" }}>{unit.title}</h1>
-          <p className="muted" style={{ maxWidth: 600 }}>
+          <h1 className="u-mt-4 u-mb-8">{unit.title}</h1>
+          <p className="muted u-maxw-600">
             {unit.description}
           </p>
         </div>

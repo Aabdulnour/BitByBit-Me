@@ -138,7 +138,7 @@ export default function DiagnosticResultsPage() {
       <div className="page">
         <div className="empty">
           Unable to display diagnostic results.
-          <button className="btn" onClick={handleBack} style={{ marginTop: 16 }}>
+          <button className="btn u-mt-16" onClick={handleBack}>
             Back to units
           </button>
         </div>
@@ -205,14 +205,14 @@ export default function DiagnosticResultsPage() {
       {review.personalizedFeedback && (
         <div className="card diagnostic-feedback-card">
           <p className="muted small">Personalized feedback</p>
-          <p style={{ margin: "8px 0 0" }}>{review.personalizedFeedback}</p>
+          <p className="u-mt-8 u-mb-0">{review.personalizedFeedback}</p>
         </div>
       )}
 
       <div className="card question-review-card">
         <div className="question-review-head">
           <div>
-            <h3 style={{ margin: "0 0 4px" }}>Question review</h3>
+            <h3 className="u-mt-0 u-mb-4">Question review</h3>
             <p className="muted small">
               See how you answered each item. Diagnostics are read only — no retakes from here.
             </p>

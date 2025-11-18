@@ -123,7 +123,7 @@ export default function UnitsPage() {
 
       {!loading && !error && enrichedUnits.length === 0 && (
         <div className="card state-card">
-          <p style={{ marginBottom: 4 }}>No units are available yet.</p>
+          <p className="u-mb-4">No units are available yet.</p>
           <p className="muted small">Ask your teacher to assign a unit.</p>
         </div>
       )}
@@ -185,12 +185,14 @@ export default function UnitsPage() {
                     </span>
                   </div>
                 </div>
-                <div className="progress-bar">
-                  <div
-                    className="progress-bar-fill"
-                    style={{ width: `${mastery}%` }}
-                  />
-                </div>
+                <progress
+                  className="progress-bar"
+                  max={100}
+                  value={mastery}
+                  aria-valuenow={mastery}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
                 <div className="unit-path-actions">
                   <button
                     className="btn primary"

@@ -1370,5 +1370,71 @@
         "used_hint": false
       }
     ]
+  },
+  {
+    "id": "3af687c4-c9e7-415c-bc34-dce513815092",
+    "student_id": "student-1",
+    "quiz_id": "mini-alg-1-1",
+    "quiz_type": "mini_quiz",
+    "unit_id": "algebra-1",
+    "section_id": "1.1",
+    "score_pct": 50.0,
+    "created_at": 1763432007.471964,
+    "results": [
+      {
+        "question_id": "q3",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q4",
+        "correct": false,
+        "chosen_answer": "-6",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
+  },
+  {
+    "id": "f1470a6b-2689-4335-8de8-8e77347c7391",
+    "student_id": "student-1",
+    "quiz_id": "unit-alg-1",
+    "quiz_type": "unit_test",
+    "unit_id": "algebra-1",
+    "section_id": null,
+    "score_pct": 25.0,
+    "created_at": 1763432028.49431,
+    "results": [
+      {
+        "question_id": "q13",
+        "correct": false,
+        "chosen_answer": "3x + 2",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q14",
+        "correct": true,
+        "chosen_answer": "True",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q15",
+        "correct": false,
+        "chosen_answer": "3",
+        "time_sec": 0.0,
+        "used_hint": false
+      },
+      {
+        "question_id": "q16",
+        "correct": false,
+        "chosen_answer": "12 free texts then 5 cents each",
+        "time_sec": 0.0,
+        "used_hint": false
+      }
+    ]
   }
 ]

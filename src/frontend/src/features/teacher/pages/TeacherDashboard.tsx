@@ -310,7 +310,7 @@ export default function TeacherDashboard() {
 
       {!loading && !error && !hasStudents && (
         <div className="card state-card">
-          <p style={{ marginBottom: 4 }}>No students enrolled yet.</p>
+          <p className="u-mb-4">No students enrolled yet.</p>
           <p className="muted small">
             Invite your first class to unlock mastery and hint usage analytics.
           </p>
@@ -319,12 +319,12 @@ export default function TeacherDashboard() {
 
       {!loading && !error && (
         <div className="card attention-card">
-          <div className="card-head">
-            <div>
-              <p className="muted small">Units that need attention</p>
-              <h3 style={{ margin: "4px 0" }}>Below 50% mastery</h3>
+            <div className="card-head">
+              <div>
+                <p className="muted small">Units that need attention</p>
+                <h3 className="u-my-4">Below 50% mastery</h3>
+              </div>
             </div>
-          </div>
           {unitsNeedingAttention.length === 0 ? (
             <p className="muted small">
               No units need special attention right now.
@@ -388,8 +388,8 @@ export default function TeacherDashboard() {
                     No students match that search. Try adjusting your filters.
                   </p>
                 ) : (
-                  <div className="teacher-table" role="table">
-                    <div className="teacher-table-head" role="row">
+                  <div className="teacher-table">
+                    <div className="teacher-table-head">
                       <span>Name</span>
                       <span>
                         Mastery{" "}

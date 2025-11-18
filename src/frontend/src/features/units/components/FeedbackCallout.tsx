@@ -11,7 +11,7 @@ export default function FeedbackCallout({
   return (
     <div>
       <p className="muted tiny helper-text">{title}</p>
-      <p style={{ margin: "4px 0 0" }}>{message}</p>
+      <p className="u-mt-4 u-mb-0">{message}</p>
     </div>
   );
 }
