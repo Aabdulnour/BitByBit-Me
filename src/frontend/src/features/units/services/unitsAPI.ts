@@ -11,6 +11,9 @@ export interface Question {
   prompt: string;
   options?: string[]; // for mcq only
   answer: string; // for boolean use "True" or "False"
+  explanation?: string | null;
+  skillIds?: string[];
+  difficultyTag?: string | null;
 }
 
 export interface Quiz {
@@ -38,15 +41,49 @@ export interface Unit {
   comprehensiveQuizId: string;
 }
 
+function mapBackendQuestion(raw: any): Question {
+  // TODO: replace this simple mapping with ML enriched metadata when backend exposes difficulty bands.
+  const promptSource =
+    (typeof raw?.text === "string" && raw.text.trim()) ||
+    (typeof raw?.prompt === "string" && raw.prompt.trim()) ||
+    "";
+  const normalizedOptions = Array.isArray(raw?.options)
+    ? raw.options
+    : undefined;
+
+  const fallbackId =
+    raw?.id ??
+    (typeof globalThis !== "undefined" &&
+    globalThis.crypto &&
+    typeof globalThis.crypto.randomUUID === "function"
+      ? globalThis.crypto.randomUUID()
+      : `question-${Date.now()}`);
+
+  return {
+    id: String(fallbackId),
+    type: raw?.type === "boolean" ? "boolean" : "mcq",
+    prompt: promptSource || "Untitled question",
+    options: normalizedOptions,
+    answer: String(raw?.correct_answer ?? raw?.answer ?? "").trim(),
+    explanation:
+      (typeof raw?.explanation === "string" && raw.explanation) ??
+      (typeof raw?.answer_explanation === "string" && raw.answer_explanation) ??
+      (typeof raw?.rationale === "string" && raw.rationale) ??
+      null,
+    skillIds: Array.isArray(raw?.skill_ids ?? raw?.skillIds)
+      ? raw.skill_ids ?? raw.skillIds
+      : Array.isArray(raw?.skills)
+      ? raw.skills
+      : [],
+    difficultyTag: raw?.difficulty ?? raw?.level ?? null,
+  };
+}
+
 // Helper to map backend quiz shape into frontend Quiz type
 function mapBackendQuiz(raw: any): Quiz {
-  const questions: Question[] = (raw.questions || []).map((q: any) => ({
-    id: String(q.id),
-    type: q.type,
-    prompt: q.text,
-    options: q.options,
-    answer: q.correct_answer,
-  }));
+  const questions: Question[] = (raw.questions || []).map((q: any) =>
+    mapBackendQuestion(q)
+  );
 
   return {
     id: String(raw.id),
@@ -123,7 +160,10 @@ export const UnitsAPI = {
         id: q.id,
         title: q.title,
         type: q.type,
-        questions: q.questions,
+        questions: q.questions.map((question: any) => ({
+          ...question,
+          explanation: question.explanation ?? question.rationale ?? null,
+        })),
         passingScorePct: q.passingScorePct,
       };
     }

@@ -1,3 +1,24 @@
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --card-soft: #edf2f6;
+  --text: #0f172a;
+  --muted: #5d6679;
+  --border: #d7e1ec;
+  --brand: #2f7d8c;
+  --brand-strong: #1f5c66;
+  --brand-soft: #e1f0f4;
+  --ring: rgba(47, 125, 140, 0.35);
+  --correct: #1f9a6a;
+  --correct-soft: #e4f6ef;
+  --incorrect: #c14c4c;
+  --incorrect-soft: #fdeceb;
+  --info-bg: #edf5f8;
+  --summary-bg: #f7fbfd;
+  --summary-border: #c7dceb;
+  --pill-muted: #e8f0f5;
+}
+
 .app-root {
   min-height: 100vh;
   background: var(--bg);
@@ -67,7 +88,7 @@
 }
 
 .nav-link:hover {
-  background: #f3f4f6;
+  background: var(--card-soft);
   color: var(--text);
 }
 
@@ -638,15 +659,15 @@
 }
 
 .tag-pass {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #065f46;
+  background: var(--correct-soft);
+  border-color: var(--correct);
+  color: var(--correct);
 }
 
 .tag-fail {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #b91c1c;
+  background: var(--incorrect-soft);
+  border-color: var(--incorrect);
+  color: var(--incorrect);
 }
 
 .hint-pill {
@@ -724,8 +745,9 @@
 }
 
 .btn.secondary {
-  background: #f8fafc;
-  color: var(--text);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  border-color: transparent;
 }
 
 .btn.subtle {
@@ -741,12 +763,12 @@
 
 .btn.option.selected {
   border-color: var(--brand);
-  background: rgba(79, 70, 229, 0.08);
-  color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
 }
 
 .btn.option:disabled {
-  opacity: 0.6;
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
@@ -769,21 +791,27 @@
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 999px;
-  background: #eef2ff;
-  color: #3730a3;
-  border: 1px solid #e0e7ff;
+  background: var(--pill-muted);
+  color: var(--brand-strong);
+  border: 1px solid var(--border);
 }
 
 .pill.wrong {
-  background: #fef2f2;
-  color: #991b1b;
-  border-color: #fee2e2;
+  background: var(--incorrect-soft);
+  color: var(--incorrect);
+  border-color: var(--incorrect);
 }
 
 .pill.correct {
-  background: #ecfdf5;
-  color: #065f46;
-  border-color: #d1fae5;
+  background: var(--correct-soft);
+  color: var(--correct);
+  border-color: var(--correct);
+}
+
+.pill.info {
+  background: var(--info-bg);
+  color: var(--brand-strong);
+  border-color: var(--brand-soft);
 }
 
 .q-card {
@@ -832,8 +860,8 @@ select.input {
 }
 
 .state-card-error {
-  background: #fff5f5;
-  border-color: #fecaca;
+  background: var(--incorrect-soft);
+  border-color: var(--incorrect);
 }
 
 .helper-hint {
@@ -846,8 +874,8 @@ select.input {
   border-radius: 999px;
   padding: 0 6px;
   margin-left: 6px;
-  color: var(--brand);
-  background: rgba(99, 102, 241, 0.08);
+  color: var(--brand-strong);
+  background: var(--brand-soft);
   cursor: default;
 }
 
@@ -1339,8 +1367,8 @@ select.input {
 }
 
 .status-pill.status-mastered {
-  background: rgba(34, 197, 94, 0.1);
-  color: #15803d;
+  background: var(--correct-soft);
+  color: var(--correct);
 }
 
 .status-pill.status-in-progress {
@@ -1359,8 +1387,8 @@ select.input {
 }
 
 .status-pill.status-recommended {
-  background: rgba(239, 68, 68, 0.12);
-  color: #b91c1c;
+  background: var(--incorrect-soft);
+  color: var(--incorrect);
 }
 
 .diagnostic-card {
@@ -1458,13 +1486,13 @@ select.input {
 }
 
 .review-chip-correct {
-  background: #ecfdf5;
-  color: #065f46;
+  background: var(--correct-soft);
+  color: var(--correct);
 }
 
 .review-chip-incorrect {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--incorrect-soft);
+  color: var(--incorrect);
 }
 
 .diagnostic-summary,
@@ -1803,7 +1831,7 @@ select.input {
 }
 
 .teacher-unit-card .emphasis {
-  color: #b91c1c;
+  color: var(--incorrect);
   font-weight: 600;
 }
 
@@ -1816,6 +1844,7 @@ select.input {
   border-radius: 14px;
   padding: 12px 16px;
   margin-bottom: 16px;
+  background: var(--card);
 }
 
 .practice-card {
@@ -1844,11 +1873,13 @@ select.input {
 }
 
 .practice-feedback {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: var(--summary-bg);
 }
 
 .practice-feedback-status {
@@ -1856,11 +1887,16 @@ select.input {
 }
 
 .practice-feedback-status.success {
-  color: #047857;
+  color: var(--correct);
 }
 
 .practice-feedback-status.error {
-  color: #b91c1c;
+  color: var(--incorrect);
+}
+
+.practice-correct-answer {
+  margin: 0;
+  color: var(--text);
 }
 
 .practice-actions {
@@ -1868,6 +1904,125 @@ select.input {
   justify-content: flex-end;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.assessment-runner {
+  gap: 20px;
+}
+
+.assessment-runner-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assessment-runner-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assessment-summary {
+  background: var(--summary-bg);
+  border-color: var(--summary-border);
+  gap: 20px;
+}
+
+.assessment-summary-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.assessment-score-pill {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  min-width: 120px;
+  text-align: center;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+.assessment-score-pill.pass {
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+.assessment-score-pill.warn {
+  border-color: var(--incorrect);
+  color: var(--incorrect);
+}
+
+.assessment-summary-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
+.assessment-summary-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assessment-summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assessment-summary-row {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.assessment-summary-row.correct {
+  border-color: var(--correct);
+  background: var(--correct-soft);
+}
+
+.assessment-summary-row.incorrect {
+  border-color: var(--incorrect);
+  background: var(--incorrect-soft);
+}
+
+.assessment-summary-question p {
+  margin: 0;
+}
+
+.assessment-summary-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.assessment-summary-answers p {
+  margin: 0;
+}
+
+.assessment-summary-explanation {
+  margin: 0;
+}
+
+.assessment-recommendation {
+  border: 1px solid var(--summary-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: var(--info-bg);
 }
 
 .quiz-intro {
@@ -1883,10 +2038,10 @@ select.input {
 }
 
 .quiz-intro-highlights {
-  border: 1px solid var(--border);
+  border: 1px solid var(--summary-border);
   border-radius: 12px;
   padding: 16px;
-  background: #f8fafc;
+  background: var(--info-bg);
 }
 
 .quiz-intro-highlights ul {
@@ -2134,11 +2289,11 @@ select.input {
 }
 
 .form-status.success {
-  color: #16a34a;
+  color: var(--correct);
 }
 
 .form-status.error {
-  color: #b91c1c;
+  color: var(--incorrect);
 }
 
 .empty-card {
@@ -2651,13 +2806,13 @@ select.input {
 }
 
 .mastery-chip.weak {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--incorrect-soft);
+  color: var(--incorrect);
 }
 
 .mastery-chip.strong {
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--correct-soft);
+  color: var(--correct);
 }
 
 .drawer-attempts {

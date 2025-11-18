@@ -68,6 +68,7 @@ export default function PracticePage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [submissionExplanation, setSubmissionExplanation] = useState<string | null>(null);
+  const [submissionCorrectAnswer, setSubmissionCorrectAnswer] = useState<string | null>(null);
   const [nextQuestionLoading, setNextQuestionLoading] = useState(false);
 
   const accuracy = useMemo(() => {
@@ -87,6 +88,7 @@ export default function PracticePage() {
     setSelectedAnswer(null);
     setHasSubmitted(false);
     setSubmissionExplanation(null);
+    setSubmissionCorrectAnswer(null);
     setJustAnswered(null);
   }, []);
 
@@ -182,6 +184,7 @@ export default function PracticePage() {
       },
     ]);
     setSubmissionExplanation(deriveExplanation(question));
+    setSubmissionCorrectAnswer(String(question.answer));
     setHasSubmitted(true);
   };
 
@@ -398,6 +401,12 @@ export default function PracticePage() {
             >
               {justAnswered === "correct" ? "Correct" : "Incorrect"}
             </div>
+            {submissionCorrectAnswer && (
+              <p className="practice-correct-answer">
+                Correct answer:{" "}
+                <strong>{submissionCorrectAnswer}</strong>
+              </p>
+            )}
             {submissionExplanation && (
               <p className="muted small">{submissionExplanation}</p>
             )}
